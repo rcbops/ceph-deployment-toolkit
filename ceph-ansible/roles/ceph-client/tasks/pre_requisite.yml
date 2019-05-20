@@ -1,0 +1,11 @@
+---
+- name: copy ceph admin keyring
+  copy:
+    src: "{{ fetch_directory }}/{{ fsid }}/etc/ceph/{{ cluster }}.client.admin.keyring"
+    dest: "/etc/ceph/"
+    owner: "{{ ceph_uid if containerized_deployment else 'ceph' }}"
+    group: "{{ ceph_uid if containerized_deployment else 'ceph' }}"
+    mode: "{{ ceph_keyring_permissions }}"
+  when:
+    - cephx
+    - copy_admin_key

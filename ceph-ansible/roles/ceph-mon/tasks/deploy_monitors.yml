@@ -1,0 +1,95 @@
+---
+- name: generate monitor initial keyring
+  local_action:
+    module: shell
+      python -c "import os ; import struct ; import time; import base64 ; key = os.urandom(16) ; header = struct.pack('<hiih',1,int(time.time()),0,len(key)) ; print(base64.b64encode(header + key).decode())" | tee {{ fetch_directory }}/monitor_keyring.conf
+    creates: "{{ fetch_directory }}/monitor_keyring.conf"
+  register: monitor_keyring
+  become: false
+  when: cephx
+
+- name: read monitor initial keyring if it already exists
+  local_action:
+    module: command
+      cat {{ fetch_directory }}/monitor_keyring.conf
+    removes: "{{ fetch_directory }}/monitor_keyring.conf"
+  changed_when: false
+  register: monitor_keyring
+  become: false
+  check_mode: no
+  when: cephx
+
+- name: create monitor initial keyring
+  ceph_key:
+    name: mon.
+    state: present
+    dest: "/var/lib/ceph/tmp/"
+    secret: "{{ monitor_secret }}"
+    cluster: "{{ cluster }}"
+    caps:
+      mon: allow *
+    import_key: False
+  when: cephx
+
+- name: set initial monitor key permissions
+  file:
+    path: "/var/lib/ceph/tmp/{{ cluster }}.mon..keyring"
+    owner: "ceph"
+    group: "ceph"
+    mode: "0600"
+  when: cephx
+
+- name: create (and fix ownership of) monitor directory
+  file:
+    path: /var/lib/ceph/mon/{{ cluster }}-{{ monitor_name }}
+    state: directory
+    owner: "ceph"
+    group: "ceph"
+    mode: "u=rwX,g=rX,o=rX"
+    recurse: true
+
+- name: create custom admin keyring
+  ceph_key:
+    name: client.admin
+    state: present
+    secret: "{{ admin_secret }}"
+    auid: 0
+    caps: "{{ client_admin_ceph_authtool_cap }}"
+    import_key: False
+    cluster: "{{ cluster }}"
+  register: create_custom_admin_secret
+  when:
+    - cephx
+    - admin_secret != 'admin_secret'
+
+- name: set ownership of admin keyring
+  file:
+    path: /etc/ceph/{{ cluster }}.client.admin.keyring
+    state: file
+    owner: 'ceph'
+    group: 'ceph'
+    mode: "{{ ceph_keyring_permissions }}"
+  when:
+    - cephx
+    - admin_secret != 'admin_secret'
+
+- name: import admin keyring into mon keyring
+  command: ceph-authtool /var/lib/ceph/tmp/{{ cluster }}.mon..keyring --import-keyring /etc/ceph/{{ cluster }}.client.admin.keyring
+  when:
+    - not create_custom_admin_secret.get('skipped')
+    - cephx
+    - admin_secret != 'admin_secret'
+
+- name: ceph monitor mkfs with keyring
+  command: ceph-mon --cluster {{ cluster }} --setuser ceph --setgroup ceph --mkfs -i {{ monitor_name }} --fsid {{ fsid }} --keyring /var/lib/ceph/tmp/{{ cluster }}.mon..keyring
+  args:
+    creates: /var/lib/ceph/mon/{{ cluster }}-{{ monitor_name }}/keyring
+  when:
+    - cephx
+
+- name: ceph monitor mkfs without keyring
+  command: ceph-mon --cluster {{ cluster }} --setuser ceph --setgroup ceph --mkfs -i {{ monitor_name }} --fsid {{ fsid }}
+  args:
+    creates: /var/lib/ceph/mon/{{ cluster }}-{{ monitor_name }}/store.db
+  when:
+    - not cephx

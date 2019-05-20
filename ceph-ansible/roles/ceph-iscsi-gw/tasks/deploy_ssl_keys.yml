@@ -1,0 +1,62 @@
+---
+- name: set_fact crt_files
+  set_fact:
+    crt_files:
+      - "iscsi-gateway.crt"
+      - "iscsi-gateway.key"
+      - "iscsi-gateway.pem"
+      - "iscsi-gateway-pub.key"
+
+- name: stat for crt file(s)
+  local_action:
+    module: stat
+    path: "{{ fetch_directory }}/{{ fsid }}/{{ item }}"
+  with_items: "{{ crt_files }}"
+  changed_when: false
+  failed_when: false
+  check_mode: no
+  register: crt_files_exist
+
+- name: create ssl crt/key files
+  command: >
+    openssl req -newkey rsa:2048 -nodes -keyout {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.key
+     -x509 -days 365 -out {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.crt
+     -subj "/C=US/ST=./L=./O=RedHat/OU=Linux/CN={{ ansible_hostname }}"
+  delegate_to: localhost
+  become: False
+  run_once: True
+  with_items: "{{ crt_files_exist.results }}"
+  when:
+    - item.stat.exists == false
+
+- name: create pem
+  shell: >
+    cat {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.crt
+    {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.key > {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.pem
+  delegate_to: localhost
+  become: False
+  run_once: True
+  register: pem
+  with_items: "{{ crt_files_exist.results }}"
+  when:
+    - item.stat.exists == false
+
+- name: create public key from pem
+  shell: >
+    openssl x509 -inform pem -in {{ fetch_directory }}/{{ fsid }}/iscsi-gateway.pem
+    -pubkey -noout > {{ fetch_directory }}/{{ fsid }}/iscsi-gateway-pub.key
+  delegate_to: localhost
+  become: False
+  run_once: True
+  when:
+    - pem.changed
+
+- name: copy crt file(s) to gateway nodes
+  copy:
+    src: "{{ fetch_directory }}/{{ fsid }}/{{ item }}"
+    dest: "/etc/ceph/{{ item }}"
+    owner: root
+    group: root
+    mode: 0400
+  changed_when: false
+  with_items: "{{ crt_files }}"

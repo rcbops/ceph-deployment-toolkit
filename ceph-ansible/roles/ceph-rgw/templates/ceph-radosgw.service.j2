@@ -1,0 +1,42 @@
+[Unit]
+Description=Ceph RGW
+After=docker.service
+{% set cpu_limit = ansible_processor_vcpus|int if ceph_rgw_docker_cpu_limit|int > ansible_processor_vcpus|int else ceph_rgw_docker_cpu_limit|int %}
+
+[Service]
+EnvironmentFile=-/etc/environment
+ExecStartPre=-/usr/bin/docker stop ceph-rgw-{{ ansible_hostname }}
+ExecStartPre=-/usr/bin/docker rm ceph-rgw-{{ ansible_hostname }}
+ExecStart=/usr/bin/docker run --rm --net=host \
+  --memory={{ ceph_rgw_docker_memory_limit }} \
+  {% if ceph_docker_version.split('.')[0] is version_compare('13', '>=') -%}
+  --cpus={{ cpu_limit }} \
+  {% else -%}
+  --cpu-quota={{ cpu_limit * 100000 }} \
+  {% endif -%}
+  {% if not containerized_deployment_with_kv -%}
+  -v /var/lib/ceph:/var/lib/ceph:z \
+  -v /etc/ceph:/etc/ceph:z \
+  -v /var/run/ceph:/var/run/ceph:z \
+  {% else -%}
+  -e KV_TYPE={{ kv_type }} \
+  -e KV_IP={{ kv_endpoint }} \
+  -e KV_PORT={{ kv_port }} \
+  {% endif -%}
+  -v /etc/localtime:/etc/localtime:ro \
+  {% if ansible_distribution == 'RedHat' -%}
+  -v /etc/pki/ca-trust/extracted:/etc/pki/ca-trust/extracted:z \
+  {% endif -%}
+  -e CEPH_DAEMON=RGW \
+  -e CLUSTER={{ cluster }} \
+  --name=ceph-rgw-{{ ansible_hostname }} \
+  {{ ceph_rgw_docker_extra_env }} \
+  {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}
+ExecStopPost=-/usr/bin/docker stop ceph-rgw-{{ ansible_hostname }}
+Restart=always
+RestartSec=10s
+TimeoutStartSec=120
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

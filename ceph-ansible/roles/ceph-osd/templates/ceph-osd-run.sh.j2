@@ -1,0 +1,133 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+
+{% if osd_scenario != 'lvm' -%}
+{% if disk_list.get('rc') == 0 -%}
+#############
+# VARIABLES #
+#############
+DOCKER_ENV=""
+
+#############
+# FUNCTIONS #
+#############
+function expose_partitions () {
+DOCKER_ENV=$(docker run --rm --net=host --name expose_partitions_${1} --privileged=true -v /dev/:/dev/ -v /etc/ceph:/etc/ceph:z -e CLUSTER={{ cluster }} -e OSD_DEVICE=/dev/${1} {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }} disk_list)
+}
+{% else -%}
+# NOTE(leseb): maintains backwards compatibility with old ceph-docker Jewel images
+# Jewel images prior to https://github.com/ceph/ceph-docker/pull/797
+REGEX="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+function expose_partitions {
+  if docker ps -a | grep -sq ceph-osd-prepare-{{ ansible_hostname }}-devdev${1}; then
+    if [[ ! -f {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-devdev${1}.log ]]; then
+      docker logs ceph-osd-prepare-{{ ansible_hostname }}-devdev${1} &> {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-devdev${1}.log
+    fi
+  fi
+  if docker ps -a | grep -sq ceph-osd-prepare-{{ ansible_hostname }}-${1}; then
+    if [[ ! -f {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-${1}.log ]]; then
+      docker logs ceph-osd-prepare-{{ ansible_hostname }}-${1} &> {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-${1}.log
+    fi
+  fi
+  if [[ -f {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-devdev${1}.log ]]; then
+    part=$(grep "Journal is GPT partition" {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-devdev${1}.log | grep -Eo /dev/disk/by-partuuid/${REGEX} | uniq)
+    DOCKER_ENV="-e OSD_JOURNAL=$part"
+  fi
+  if [[ -f {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-${1}.log ]]; then
+    part=$(grep "Journal is GPT partition" {{ ceph_osd_docker_run_script_path }}/ceph-osd-prepare-{{ ansible_hostname }}-${1}.log | grep -Eo /dev/disk/by-partuuid/${REGEX} | uniq)
+    DOCKER_ENV="-e OSD_JOURNAL=$part"
+  fi
+  if [[ -z $DOCKER_ENV ]]; then
+    # NOTE(leseb): if we arrive here this probably means we just switched from non-containers to containers.
+    # This is tricky as we don't have any info on the type of OSD, this is 'only' a problem for non-collocated scenarios
+    # We can't assume that the 'ceph' is still present so calling Docker exec instead
+    part=$(docker run --privileged=true -v /dev:/dev --entrypoint /usr/sbin/ceph-disk {{ ceph_docker_registry}}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }} list /dev/${1} | awk '/journal / {print $1}')
+    DOCKER_ENV="-e OSD_JOURNAL=$part"
+  fi
+  # if empty, the previous command didn't find anything so we fail
+  if [[ -z $DOCKER_ENV ]]; then
+    echo "ERROR: could not discover ceph partitions"
+    exit 1
+  fi
+}
+
+{% endif -%}
+
+expose_partitions "$1"
+
+# discover osd_objectstore for ceph-disk based osds
+if [[ $DOCKER_ENV =~ "BLUESTORE" ]]; then
+  DOCKER_ENV="$DOCKER_ENV -e OSD_BLUESTORE=1"
+elif [[ $DOCKER_ENV =~ "JOURNAL" ]]; then
+  DOCKER_ENV="$DOCKER_ENV -e OSD_FILESTORE=1"
+fi
+
+{% endif -%}
+
+
+########
+# MAIN #
+########
+{% set cpu_limit = ansible_processor_vcpus|int if ceph_osd_docker_cpu_limit|int > ansible_processor_vcpus|int else ceph_osd_docker_cpu_limit|int %}
+
+{% if ceph_osd_numactl_opts != "" %}
+numactl \
+{{ ceph_osd_numactl_opts }} \
+{% endif %}
+/usr/bin/docker run \
+  --rm \
+  --net=host \
+  --privileged=true \
+  --pid=host \
+  --ipc=host \
+  {% if osd_objectstore == 'filestore' -%}
+  --memory={{ ceph_osd_docker_memory_limit }} \
+  {% endif -%}
+  {% if ceph_docker_version.split('.')[0] is version_compare('13', '>=') -%}
+  --cpus={{ cpu_limit }} \
+  {% else -%}
+  --cpu-quota={{ cpu_limit * 100000 }} \
+  {% endif -%}
+  {% if ceph_osd_docker_cpuset_cpus is defined -%}
+  --cpuset-cpus='{{ ceph_osd_docker_cpuset_cpus }}' \
+  {% endif -%}
+  {% if ceph_osd_docker_cpuset_mems is defined -%}
+  --cpuset-mems='{{ ceph_osd_docker_cpuset_mems }}' \
+  {% endif -%}
+  -v /dev:/dev \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /var/lib/ceph:/var/lib/ceph:z \
+  -v /etc/ceph:/etc/ceph:z \
+  -v /var/run/ceph:/var/run/ceph:z \
+  -v /var/run/udev/:/var/run/udev/:z \
+  {% if ansible_distribution == 'Ubuntu' -%}
+  --security-opt apparmor:unconfined \
+  {% endif -%}
+  {% if containerized_deployment_with_kv -%}
+  -e KV_TYPE={{ kv_type }} \
+  -e KV_IP={{ kv_endpoint }} \
+  -e KV_PORT={{ kv_port }} \
+  {% endif -%}
+  {% if dmcrypt -%}
+  -e OSD_DMCRYPT=1 \
+  {% else -%}
+  -e OSD_DMCRYPT=0 \
+  {% endif -%}
+  -e CLUSTER={{ cluster }} \
+  {% if (ceph_tcmalloc_max_total_thread_cache | int) > 0 and osd_objectstore == 'filestore' -%}
+  -e TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES={{ ceph_tcmalloc_max_total_thread_cache }} \
+  {% endif -%}
+  {% if osd_scenario == 'lvm' -%}
+  -v /run/lvm/lvmetad.socket:/run/lvm/lvmetad.socket \
+  -e CEPH_DAEMON=OSD_CEPH_VOLUME_ACTIVATE \
+  -e OSD_ID="$1" \
+  --name=ceph-osd-"$1" \
+  {% else -%}
+  $DOCKER_ENV \
+  -e CEPH_DAEMON=OSD_CEPH_DISK_ACTIVATE \
+  -e OSD_DEVICE=/dev/"${1}" \
+  --name=ceph-osd-{{ ansible_hostname }}-"${1}" \
+  {% endif -%}
+  {{ ceph_osd_docker_extra_env }} \
+  {{ ceph_docker_registry }}/{{ ceph_docker_image }}:{{ ceph_docker_image_tag }}

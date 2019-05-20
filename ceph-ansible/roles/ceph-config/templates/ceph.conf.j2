@@ -1,0 +1,239 @@
+#jinja2: trim_blocks: "true", lstrip_blocks: "true"
+# {{ ansible_managed }}
+
+[global]
+{% if not cephx %}
+auth cluster required = none
+auth service required = none
+auth client required = none
+auth supported = none
+{% endif %}
+{% if ip_version == 'ipv6'  %}
+ms bind ipv6 = true
+{% endif %}
+{% if not containerized_deployment_with_kv and not containerized_deployment %}
+fsid = {{ fsid }}
+{% endif %}
+{% if common_single_host_mode is defined and common_single_host_mode %}
+osd crush chooseleaf type = 0
+{% endif %}
+{# NOTE (leseb): the blank lines in-between are needed otherwise we won't get any line break #}
+
+{% set nb_mon = groups.get(mon_group_name, []) | length | int %}
+{% set nb_client = groups.get(client_group_name, []) | length | int %}
+{% set nb_osd = groups.get(osd_group_name, []) | length | int %}
+
+
+{% if nb_mon > 0 and inventory_hostname in groups.get(mon_group_name, []) %}
+mon initial members = {% for host in groups[mon_group_name] %}
+      {% if hostvars[host]['ansible_fqdn'] is defined and mon_use_fqdn -%}
+        {{ hostvars[host]['ansible_fqdn'] }}
+      {%- elif hostvars[host]['ansible_hostname'] is defined -%}
+        {{ hostvars[host]['ansible_hostname'] }}
+      {%- endif %}
+      {%- if not loop.last %},{% endif %}
+    {% endfor %}
+
+osd pool default crush rule = {{ osd_pool_default_crush_rule | default(ceph_osd_pool_default_crush_rule) }}
+{% endif %}
+
+{% if not containerized_deployment and not containerized_deployment_with_kv -%}
+mon host = {% if nb_mon > 0 %}
+  {% for host in groups[mon_group_name] -%}
+    {% if hostvars[host]['monitor_address_block'] is defined and hostvars[host]['monitor_address_block'] != 'subnet' %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(hostvars[host]['monitor_address_block']) | first }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(hostvars[host]['monitor_address_block']) | last }}]
+      {%- endif %}
+    {% elif hostvars[host]['monitor_address'] is defined and hostvars[host]['monitor_address'] != '0.0.0.0' -%}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host]['monitor_address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host]['monitor_address'] }}]
+      {%- endif %}
+    {%- elif hostvars[host]['monitor_interface'] is defined -%}
+      {% set interface = 'ansible_' + (hostvars[host]['monitor_interface'] | replace('-', '_')) %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host][interface][ip_version]['address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host][interface][ip_version][0]['address'] }}]
+      {%- endif %}
+    {%- else -%}
+      {% set interface = 'ansible_' + (monitor_interface | replace('-', '_')) %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host][interface][ip_version]['address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host][interface][ip_version][0]['address'] }}]
+      {%- endif %}
+    {%- endif %}
+   {% if not loop.last -%},{%- endif %}
+  {%- endfor %}
+  {% elif nb_mon == 0 and inventory_hostname in groups.get(client_group_name, []) %}
+  {{ external_cluster_mon_ips }}
+  {% endif %}
+{%- endif %}
+
+{% if containerized_deployment %}
+fsid = {{ fsid }}
+log file = /dev/null
+mon cluster log file = /dev/null
+mon host = {% if nb_mon > 0 %}
+{% for host in groups[mon_group_name] -%}
+    {% if hostvars[host]['monitor_address_block'] is defined and hostvars[host]['monitor_address_block'] != 'subnet' %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(hostvars[host]['monitor_address_block']) | first }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(hostvars[host]['monitor_address_block']) | last }}]
+      {%- endif %}
+    {% elif hostvars[host]['monitor_address'] is defined and hostvars[host]['monitor_address'] != '0.0.0.0' -%}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host]['monitor_address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host]['monitor_address'] }}]
+      {%- endif %}
+    {%- elif hostvars[host]['monitor_interface'] is defined -%}
+      {% set interface = 'ansible_' + (hostvars[host]['monitor_interface'] | replace('-', '_')) %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host][interface][ip_version]['address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host][interface][ip_version][0]['address'] }}]
+      {%- endif %}
+    {%- else -%}
+      {% set interface = 'ansible_' + (monitor_interface | replace('-', '_')) %}
+      {% if ip_version == 'ipv4' -%}
+        {{ hostvars[host][interface][ip_version]['address'] }}
+      {%- elif ip_version == 'ipv6' -%}
+        [{{ hostvars[host][interface][ip_version][0]['address'] }}]
+      {%- endif %}
+    {%- endif %}
+    {% if not loop.last -%},{%- endif %}
+  {%- endfor %}
+  {% elif nb_mon == 0 and inventory_hostname in groups.get(client_group_name, []) %}
+  {{ external_cluster_mon_ips }}
+  {% endif %}
+{% endif %}
+
+{% if public_network is defined %}
+public network = {{ public_network | regex_replace(' ', '') }}
+{% endif %}
+{% if cluster_network is defined %}
+cluster network = {{ cluster_network | regex_replace(' ', '') }}
+{% endif %}
+{% if rgw_override_bucket_index_max_shards is defined %}
+rgw override bucket index max shards = {{ rgw_override_bucket_index_max_shards }}
+{% endif %}
+{% if rgw_bucket_default_quota_max_objects is defined %}
+rgw bucket default quota max objects = {{ rgw_bucket_default_quota_max_objects }}
+{% endif %}
+
+{% if inventory_hostname in groups.get(client_group_name, []) %}
+[client.libvirt]
+admin socket = {{ rbd_client_admin_socket_path }}/$cluster-$type.$id.$pid.$cctid.asok # must be writable by QEMU and allowed by SELinux or AppArmor
+log file = {{ rbd_client_log_file }} # must be writable by QEMU and allowed by SELinux or AppArmor
+{% endif %}
+
+{% if inventory_hostname in groups.get(osd_group_name, []) %}
+{% if osd_objectstore == 'filestore' %}
+[osd]
+osd mkfs type = {{ osd_mkfs_type }}
+osd mkfs options xfs = {{ osd_mkfs_options_xfs }}
+osd mount options xfs = {{ osd_mount_options_xfs }}
+osd journal size = {{ journal_size }}
+{% if filestore_xattr_use_omap != None %}
+filestore xattr use omap = {{ filestore_xattr_use_omap }}
+{% elif osd_mkfs_type == "ext4" %}
+filestore xattr use omap = true
+{# else, default is false #}
+{% endif %}
+{% endif %}
+{% if osd_objectstore == 'bluestore' %}
+{% set _num_osds = num_osds | default(0) | int %}
+[osd]
+{% if is_hci and _num_osds > 0 %}
+{# hci_safety_factor is the safety factor for HCI deployments #}
+{% if ansible_memtotal_mb * 1048576 * hci_safety_factor / _num_osds > osd_memory_target %}
+{% set _osd_memory_target = (ansible_memtotal_mb * 1048576 * hci_safety_factor / _num_osds) | int %}
+{% endif %}
+{% elif _num_osds > 0 %}
+{# non_hci_safety_factor is the safety factor for dedicated nodes #}
+{% if ansible_memtotal_mb * 1048576 * non_hci_safety_factor / _num_osds > osd_memory_target %}
+{% set _osd_memory_target = (ansible_memtotal_mb * 1048576 * non_hci_safety_factor / _num_osds) | int %}
+{% endif %}
+{% endif %}
+osd memory target = {{ _osd_memory_target | default(osd_memory_target) }}
+{% endif %}
+{% endif %}
+
+{% if inventory_hostname in groups.get(rgw_group_name, []) %}
+{% for host in groups[rgw_group_name] %}
+{% set _rgw_hostname = hostvars[host]['rgw_hostname'] | default(hostvars[host]['ansible_hostname']) %}
+{# {{ hostvars[host]['rgw_hostname'] }} for backward compatibility, fqdn issues. See bz1580408 #}
+[client.rgw.{{ _rgw_hostname }}]
+host = {{ _rgw_hostname }}
+keyring = /var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ _rgw_hostname }}/keyring
+log file = /var/log/ceph/{{ cluster }}-rgw-{{ hostvars[host]['ansible_hostname'] }}.log
+{% if hostvars[host]['radosgw_address_block'] is defined and hostvars[host]['radosgw_address_block'] != 'subnet' %}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(radosgw_address_block) | first }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ hostvars[host]['ansible_all_' + ip_version + '_addresses'] | ipaddr(radosgw_address_block) | last }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% elif radosgw_address_block is defined and radosgw_address_block != 'subnet' -%}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ radosgw_address_block | ipaddr(radosgw_address_block) | first }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ radosgw_address_block | ipaddr(radosgw_address_block) | last }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% elif hostvars[host]['radosgw_address'] is defined and hostvars[host]['radosgw_address'] != '0.0.0.0' -%}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ hostvars[host]['radosgw_address'] }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ hostvars[host]['radosgw_address'] }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% elif radosgw_address is defined and radosgw_address != '0.0.0.0' -%}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ radosgw_address }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ radosgw_address }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% elif hostvars[host]['radosgw_interface'] is defined -%}
+    {% set interface='ansible_' + (hostvars[host]['radosgw_interface'] | replace('-', '_')) %}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ hostvars[host][interface][ip_version]['address'] }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ hostvars[host][interface][ip_version][0]['address'] }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% else %}
+    {% set interface='ansible_' + (radosgw_interface | replace('-', '_')) %}
+    {% if ip_version == 'ipv4' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}={{ hostvars[host][interface][ip_version]['address'] }}:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% elif ip_version == 'ipv6' %}
+rgw frontends = {{ radosgw_frontend_type }} {{ 'port' if radosgw_frontend_type == 'civetweb' else 'endpoint' }}=[{{ hostvars[host][interface][ip_version][0]['address'] }}]:{{ radosgw_frontend_port }} {{ radosgw_frontend_options }}
+    {% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if inventory_hostname in groups.get(nfs_group_name, []) and inventory_hostname not in groups.get(rgw_group_name, []) %}
+{% for host in groups[nfs_group_name] %}
+{% set _rgw_hostname = hostvars[host]['rgw_hostname'] | default(hostvars[host]['ansible_hostname']) %}
+{% if nfs_obj_gw %}
+[client.rgw.{{ _rgw_hostname }}]
+host = {{ _rgw_hostname }}
+keyring = /var/lib/ceph/radosgw/{{ cluster }}-rgw.{{ _rgw_hostname }}/keyring
+log file = /var/log/ceph/{{ cluster }}-rgw-{{ hostvars[host]['ansible_hostname'] }}.log
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if inventory_hostname in groups.get(restapi_group_name, []) %}
+[client.restapi]
+{% if restapi_interface != "interface" %}
+{% include 'client_restapi_interface.j2' %}
+{% else %}
+{% include 'client_restapi_address.j2' %}
+{% endif %}
+keyring = /var/lib/ceph/restapi/ceph-restapi/keyring
+log file = /var/log/ceph/ceph-restapi.log
+{% endif %}
