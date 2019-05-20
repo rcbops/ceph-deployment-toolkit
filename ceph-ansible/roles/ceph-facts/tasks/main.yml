@@ -1,3 +1,0 @@
----
-- name: include facts.yml
-  include_tasks: facts.yml

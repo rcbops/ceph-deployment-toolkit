@@ -1,3 +1,0 @@
----
-- name: include check_running_cluster.yml
-  include: check_running_cluster.yml
