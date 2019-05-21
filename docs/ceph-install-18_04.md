@@ -29,7 +29,6 @@ cat ~/.ssh/id_rsa.pub
 ``` 
 echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
 apt install python
-
 ```
 
 #### clone the ceph-toolkit repo onto the deployment host

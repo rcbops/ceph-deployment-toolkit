@@ -1,0 +1,47 @@
+---
+wal_size: "200G"
+db_size: "2G"
+
+drives:
+  ssd:
+    sdb:
+      vg: ceph-ssd1
+    sdc:
+      vg: ceph-ssd2
+  hdd:
+    sde:
+      name: ceph-data1
+      db_lv: ceph-db1
+      db_vg: ceph-ssd1
+      wal_lv: ceph-wal1
+      wal_vg: ceph-ssd1
+    sdf:
+      name: ceph-data2
+      db_lv: ceph-db2
+      db_vg: ceph-ssd1
+      wal_lv: ceph-wal2
+      wal_vg: ceph-ssd1
+    sdg:
+      name: ceph-data3
+      db_lv: ceph-db3
+      db_vg: ceph-ssd1
+      wal_lv: ceph-wal3
+      wal_vg: ceph-ssd1
+    sdi:
+      name: ceph-data4
+      db_lv: ceph-db4
+      db_vg: ceph-ssd2
+      wal_lv: ceph-wal4
+      wal_vg: ceph-ssd2
+    sdj:
+      name: ceph-data5
+      db_lv: ceph-db5
+      db_vg: ceph-ssd2
+      wal_lv: ceph-wal5
+      wal_vg: ceph-ssd2
+    sdk:
+      name: ceph-data6
+      db_lv: ceph-db6
+      db_vg: ceph-ssd2
+      wal_lv: ceph-wal6
+      wal_vg: ceph-ssd2
