@@ -1,0 +1,76 @@
+---
+
+# This is a prepopulated osds.yml file
+
+
+# There are two deployment scenarios that the deployments team will be responsible for: collocated and non-collocated deployments.
+# If every single drive is a NVMe drive, reach out to RPC-STORAGE and we will handle it.
+
+
+# I've included examples of what collocated and non-collocated configs will look like in this file. 
+# You will have to edit these blocks to match your environment, but they will get you most of the way. 
+# If you have any questions, reach out to RPC-STORAGE.
+
+# This will always be lvm. Do not change this.
+
+osd_scenario: lvm
+
+# non-collocated example
+
+# You want half of the wal logical volumes on first SSD, and half on the second SSD.
+# The non-collocated-partitioning playbook in common-playbooks should create these for you based on drives.yml.
+
+#lvm_volumes:
+#  - data: "ceph-data01"     # This is the logical volume on your spinning disk
+#    data_vg: "ceph-data01"  # This is the volume group on your spinning disk
+#    wal: "ceph-wal01"       # This is the logical volume for wal on your first SSD 
+#    wal_vg: "ceph-ssd01"    # This is the volume group on your first SSD
+#    db: "ceph-db01"         # This is the logical volume for db on your first SSD
+#    db_vg: "ceph-ssd01"     # This is the volume group on your first SSD
+#
+#  - data: "ceph-data02"
+#    data_vg: "ceph-data02"
+#    wal: "ceph-wal02"
+#    wal_vg: "ceph-ssd01"
+#    db: "ceph-db02"
+#    db_vg: "ceph-ssd01"
+#
+#  - data: "ceph-data03"
+#    data_vg: "ceph-data03"
+#    wal: "ceph-wal03"
+#    wal_vg: "ceph-ssd2"
+#    db: "ceph-db03"
+#    db_vg: "ceph-ssd2"
+#
+#  - data: "ceph-data04"
+#    data_vg: "ceph-data04"
+#    wal: "ceph-wal04"
+#    wal_vg: "ceph-ssd2"
+#    db: "ceph-db04"
+#    db_vg: "ceph-ssd2"
+
+
+
+# collocated example
+
+# This is when every single drive is an SSD in the cluster. 
+# Your data logical volume, your wal logical volume, and your db logical volume will all live on the same SSD
+# These partitions should be set up by the collocated-partitioning playbook in common-playbooks
+
+#lvm_volumes:
+#  - data: "ceph-data01" # This is the data logical volume on the first SSD
+#    data_vg: "ceph-ssd01" # This is the volume group for the first SSD
+#    wal: "ceph-wal01" # This is the wal logical volume on the first SSD
+#    wal_vg: "ceph-ssd01" # This is the volume group for the first SSD
+#    db: "ceph-db01" # This is the db logical volume for the first SSD
+#    db_vg: "ceph-ssd01" # This is the volume group for the first SSD
+# 
+#  - data: "ceph-data02" # This is the data logical volume on the second SSD
+#    data_vg: "ceph-ssd02" # This is the volume group for the second SSD
+#    wal: "ceph-wal02" # This is the wal logical volume on the second SSD
+#    wal_vg: "ceph-ssd02" # This is the volume group for the second SSD
+#    db: "ceph-db02" # This is the db logical volume for the second SSD
+#    db_vg: "ceph-ssd02" # This is the volume group for the second SSD
+
+
+

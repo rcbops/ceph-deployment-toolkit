@@ -1,0 +1,10 @@
+---
+# This is a prepopulated config for mgrs.yml
+# Just copy this one over
+
+ceph_mgr_modules:
+  - restful
+  - status
+  - balancer
+# Holding off on defaulting dashboard on until we have authentication for it
+    #- dashboard

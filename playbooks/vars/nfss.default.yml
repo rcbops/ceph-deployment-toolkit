@@ -1,0 +1,7 @@
+---
+
+# This is a prepopulated config for nfss.yml
+
+# This is for nfs-ganesha and will be handled by RPC-STORAGE for now.
+
+dummy:

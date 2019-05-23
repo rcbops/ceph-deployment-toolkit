@@ -1,0 +1,237 @@
+---
+
+# This is a pre-populated all.yml. 
+# Fill in the needed info to set up your cluster. 
+# If you have any questions, contact RPC-STORAGE
+
+ceph_release_num:
+  dumpling: 0.67
+  emperor: 0.72
+  firefly: 0.80
+  giant: 0.87
+  hammer: 0.94
+  infernalis: 9
+  jewel: 10
+  kraken: 11
+  luminous: 12
+  mimic: 13
+  nautilus: 14
+
+
+# Inventory host group variables
+mon_group_name: mons
+osd_group_name: osds
+rgw_group_name: rgws
+mds_group_name: mdss
+nfs_group_name: nfss
+mgr_group_name: mgrs
+#restapi_group_name: restapis
+#rbdmirror_group_name: rbdmirrors
+#client_group_name: clients
+#iscsi_gw_group_name: iscsigws
+
+
+
+# Pull ceph from upstream
+
+ceph_origin: repository
+ceph_repository: community
+ceph_mirror: http://download.ceph.com
+ceph_stable_key: https://download.ceph.com/keys/release.asc
+ceph_stable_release: mimic
+ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
+
+# Pull NFS-Ganesha 2.7 if using CephfS (Uncomment only if using CephFS)
+#nfs_ganesha_stable: true # use stable repos for nfs-ganesha
+#nfs_ganesha_stable_branch: V2.7-stable
+#nfs_ganesha_stable_deb_repo: "{{ ceph_mirror }}/nfs-ganesha/deb-{{ nfs_ganesha_stable_branch }}/{{ ceph_stable_release }}"
+
+
+# Configure Frontend and Backend network ranges
+
+public_network: FRONTEND-NETWORK-CIDR
+cluster_network: BACKEND-NETWORK-CIDR
+
+# osd backend to use. This will be bluestore until further notice
+osd_objectstore: bluestore
+
+
+# RadosGW configuration (only setup if setting up RGW)
+
+# radosgw_frontend_type: civetweb # For additionnal frontends see: http://docs.ceph.com/docs/mimic/radosgw/frontends/
+#radosgw_civetweb_port: 8080
+#radosgw_civetweb_num_threads: 100
+#radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }}"
+
+
+
+# CephFS backend (only uncomment if setting up CephFS)
+
+# Set this to true to enable File access via NFS.  Requires an MDS role.
+#nfs_file_gw: true
+# Set this to true to enable Object access via NFS. Requires an RGW role.
+#nfs_obj_gw: false   # DO NOT EVER SET THIS TO TRUE
+
+
+
+
+# Openstack Pools
+
+openstack_config: true
+openstack_glance_pool:
+  name: "images"
+  pg_num: "{{ osd_pool_default_pg_num }}"
+  pgp_num: "{{ osd_pool_default_pg_num }}"
+  rule_name: "replicated_rule"
+  type: 1
+  erasure_profile: ""
+  expected_num_objects: ""
+  application: "rbd"
+  size: "{{ osd_pool_default_size }}"
+  min_size: "{{ osd_pool_default_min_size }}"
+openstack_cinder_pool:
+  name: "volumes"
+  pg_num: "{{ osd_pool_default_pg_num }}"
+  pgp_num: "{{ osd_pool_default_pg_num }}"
+  rule_name: "replicated_rule"
+  type: 1
+  erasure_profile: ""
+  expected_num_objects: ""
+  application: "rbd"
+  size: "{{ osd_pool_default_size }}"
+  min_size: "{{ osd_pool_default_min_size }}"
+openstack_nova_pool:
+  name: "vms"
+  pg_num: "{{ osd_pool_default_pg_num }}"
+  pgp_num: "{{ osd_pool_default_pg_num }}"
+  rule_name: "replicated_rule"
+  type: 1
+  erasure_profile: ""
+  expected_num_objects: ""
+  application: "rbd"
+  size: "{{ osd_pool_default_size }}"
+  min_size: "{{ osd_pool_default_min_size }}"
+openstack_cinder_backup_pool:
+  name: "backups"
+  pg_num: "{{ osd_pool_default_pg_num }}"
+  pgp_num: "{{ osd_pool_default_pg_num }}"
+  rule_name: "replicated_rule"
+  type: 1
+  erasure_profile: ""
+  expected_num_objects: ""
+  application: "rbd"
+  size: "{{ osd_pool_default_size }}"
+  min_size: "{{ osd_pool_default_min_size }}"
+
+openstack_pools:
+  - "{{ openstack_glance_pool }}"
+  - "{{ openstack_cinder_pool }}"
+  - "{{ openstack_nova_pool }}"
+  - "{{ openstack_cinder_backup_pool }}"
+
+openstack_keys:
+  - { name: client.glance, caps: { mon: "profile rbd", osd: "profile rbd pool=volumes, profile rbd pool={{ openstack_glance_pool.name }}"}, mode: "0600" }
+  - { name: client.cinder, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_cinder_pool.name }}, profile rbd pool={{ openstack_nova_pool.name }}, profile rbd pool={{ openstack_glance_pool.name }}"}, mode: "0600" }
+  - { name: client.cinder-backup, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_cinder_backup_pool.name }}"}, mode: "0600" }
+  - { name: client.openstack, caps: { mon: "profile rbd", osd: "profile rbd pool={{ openstack_glance_pool.name }}, profile rbd pool={{ openstack_nova_pool.name }}, profile rbd pool={{ openstack_cinder_pool.name }}, profile rbd pool={{ openstack_cinder_backup_pool.name }}"}, mode: "0600" }
+
+# CephFS pools (only uncomment if setting up CephFS)
+
+#cephfs: cephfs # name of the ceph filesystem
+#cephfs_data: cephfs_data # name of the data pool for a given filesystem
+#cephfs_metadata: cephfs_metadata # name of the metadata pool for a given filesystem
+
+#cephfs_data_pool:
+#  name: "{{ cephfs_data }}"
+#  pgs: "{{ osd_pool_default_pg_num }}"
+#  size: "{{ osd_pool_default_size }}"
+#  min_size: "{{ osd_pool_default_min_size }}"
+#  rule_name: "replicated_rule"
+
+#cephfs_metadata_pool:
+#  name: "{{ cephfs_metadata }}"
+#  pgs: "{{ osd_pool_default_pg_num }}"
+#  size: "{{ osd_pool_default_size }}"
+#  min_size: "{{ osd_pool_default_min_size }}"
+#  rule_name: "replicated_rule"
+
+
+#cephfs_pools:
+#  - "{{ cephfs_data_pool }}"
+#  - "{{ cephfs_metadata_pool }}"
+
+
+
+# Tuning Defaults DO NOT CHANGE WITHOUT CONSULTING RPC-STORAGE
+
+ceph_conf_overrides_all:
+   global:
+     debug_lockdep: "0/0"
+     debug_context: "0/0"
+     debug_crush: "0/0"
+     debug_buffer: "0/0"
+     debug_timer: "0/0"
+     debug_filer: "0/0"
+     debug_objecter: "0/0"
+     debug_rados: "0/0"
+     debug_rbd: "0/0"
+     debug_journaler: "0/0"
+     debug_objectcacher: "0/0"
+     debug_client: "0/0"
+     debug_osd: "0/0"
+     debug_optracker: "0/0"
+     debug_objclass: "0/0"
+     debug_filestore: "0/0"
+     debug_bluestore: "0/0"
+     debug_journal: "0/0"
+     debug_ms: "0/0"
+     debug_tp: "0/0"
+     debug_auth: "0/0"
+     debug_finisher: "0/0"
+     debug_heartbeatmap: "0/0"
+     debug_perfcounter: "0/0"
+     debug_asok: "0/0"
+     debug_throttle: "0/0"
+     debug_paxos: "0/0"
+     debug_rgw: "0/0"
+     debug_monc: "0/0"
+     debug_mon: "0/0"
+     max_open_files: 26234859
+     osd_pool_default_pg_num: 32
+     osd_pool_default_pgp_num: 32
+     mon_osd_down_out_interval: 900
+   client:
+     rbd_cache_size: 67108864
+     rbd_cache_max_dirty: 50331648
+     rbd_cache_max_dirty_age: 2
+     rbd_cache_target_dirty: 33554432
+   osd:
+     osd_heartbeat_min_size: 9000
+     osd_snap_trip_priority: 1
+     osd_snap_trim_sleep: 0.1
+     osd_pg_max_concurrent_snap_trims: 1
+     osd_scrub_sleep: 0.1
+     osd_scrub_priority: 1
+     osd_scrub_chunk_min: 1
+     osd_scrub_chunk_max: 5
+     osd_scrub_load_threshold: 10.0
+     osd_scrub_min_interval: 129600
+     osd_deep_scrub_interval: 1209600
+     filestore_merge_threshold: 40
+     filestore_split_multiple: 8
+     filestore_max_sync_interval: 10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
