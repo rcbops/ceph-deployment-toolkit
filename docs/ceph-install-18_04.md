@@ -123,18 +123,57 @@ Your inventory file should look like this
 
 ```
 [mons]  # required
+Bulbasaur
+Squirtle
+Charmander
 
 [mgrs]  # required
+Bulbasaur
+Squirtle
+Charmander
 
 [osds]  # required
+Bulbasaur
+Squirtle
+Charmander
+Pikachu
+Eevee
 
 [mdss]  # only if customer is getting CephFS + Manila
+Bulbasaur
+Squirtle
+Charmander
 
 [nfss]  # only if customer is getting CephFS + Manila
+Bulbasaur
+Squirtle
+Charmander
 
 [rgws]  # only if customer is getting object storage with RGW
-
+Bulbasaur
+Squirtle
+Charmander
 
 ```
 
+### Copy the premade files from the toolkit to ceph-ansible
+
+```
+cp /opt/ceph-toolkit/playbooks/vars/all.default.yml /opt/ceph-ansible/group_vars/all.yml
+cp /opt/ceph-toolkit/playbooks/vars/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
+cp /opt/ceph-toolkit/playbooks/vars/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
+cp /opt/ceph-toolkit/playbooks/vars/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
+cp /opt/ceph-toolkit/playbooks/vars/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
+cp /opt/ceph-toolkit/playbooks/vars/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
+```
+
+### Fill in the info in all.yml and osds.yml. Read the instructions in each file.
+
+
+### Run site.yml to deploy Ceph
+
+```
+cp /opt/ceph-ansible/site.sample.yml /opt/ceph-ansible/site.yml
+ansible-playbook -i ceph_inventory site.yml
+```
 
