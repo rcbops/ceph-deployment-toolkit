@@ -74,7 +74,66 @@ If you have all SSD drives, your drives.yml should be set up like this ...
 If you have SSD Journals and HDD OSDs, your drives.yml should be set up like this ...
 
 ```
-<placeholder>
+---
+wal_size: "2G"
+db_size: "200G" # 4% of osd drive size
+
+drives:
+  ssd:
+    sdb:
+      vg: ceph-ssd01
+    sdc:
+      vg: ceph-ssd02
+  hdd:
+    sde:
+      name: ceph-data01
+      db_lv: ceph-db01
+      db_vg: ceph-ssd01
+      wal_lv: ceph-wal01
+      wal_vg: ceph-ssd01
+    sdf:
+      name: ceph-data02
+      db_lv: ceph-db02
+      db_vg: ceph-ssd01
+      wal_lv: ceph-wal02
+      wal_vg: ceph-ssd01
+    sdg:
+      name: ceph-data03
+      db_lv: ceph-db03
+      db_vg: ceph-ssd01
+      wal_lv: ceph-wal03
+      wal_vg: ceph-ssd01
+    sdi:
+      name: ceph-data04
+      db_lv: ceph-db04
+      db_vg: ceph-ssd02
+      wal_lv: ceph-wal04
+      wal_vg: ceph-ssd02
+    sdj:
+      name: ceph-data05
+      db_lv: ceph-db05
+      db_vg: ceph-ssd02
+      wal_lv: ceph-wal05
+      wal_vg: ceph-ssd02
+    sdk:
+      name: ceph-data06
+      db_lv: ceph-db06
+      db_vg: ceph-ssd02
+      wal_lv: ceph-wal06
+      wal_vg: ceph-ssd02
+    sdd:
+      name: ceph-data07
+      db_lv: ceph-db07
+      db_vg: ceph-ssd01
+      wal_lv: ceph-wal07
+      wal_vg: ceph-ssd01
+    sdh:
+      name: ceph-data08
+      db_lv: ceph-db08
+      db_vg: ceph-ssd02
+      wal_lv: ceph-wal08
+      wal_vg: ceph-ssd02
+
 ```
 
 There are examples of both scenarios inside ./playbooks/vars/
