@@ -68,7 +68,37 @@ Eevee
 If you have all SSD drives, your drives.yml should be set up like this ...
 
 ```
-<placeholder>
+---
+wal_size: "2G"
+db_size: "200G" # 4% of the drive size
+
+drives:
+  ssd:
+    sdb:
+      name: ceph-data1
+      db_lv: ceph-db1
+      wal_lv: ceph-wal1
+    sdc:
+      name: ceph-data2
+      db_lv: ceph-db2
+      wal_lv: ceph-wal2
+    sdd:
+      name: ceph-data3
+      db_lv: ceph-db3
+      wal_lv: ceph-wal3
+    sde:
+      name: ceph-data4
+      db_lv: ceph-db4
+      wal_lv: ceph-wal4
+    sdf:
+      name: ceph-data5
+      db_lv: ceph-db5
+      wal_lv: ceph-wal5
+    sdg:
+      name: ceph-data6
+      db_lv: ceph-db6
+      wal_lv: ceph-wal6
+
 ```
 
 If you have SSD Journals and HDD OSDs, your drives.yml should be set up like this ...
@@ -166,7 +196,107 @@ Network requirements
 * tunnel network is not needed
 
 ```
-put example file here
+auto lo
+iface lo inet loopback
+
+auto em1
+iface em1 inet manual
+     bond-master bond0
+
+auto p4p2
+iface p4p2 inet manual
+     bond-master bond0
+
+auto bond0
+iface bond0 inet static
+    mtu 9000
+    bond-mode 4
+    bond_xmit_hash_policy layer3+4
+    bond-lacp-rate 1
+    bond-miimon 100
+    slaves em1 p4p2
+    address HOST_IP
+    netmask 255.255.252.0
+    gateway 10.240.0.1
+
+auto em4
+iface em4 inet manual
+     bond-master bond1
+
+auto p4p1
+iface p4p1 inet manual
+     bond-master bond1
+
+auto bond1
+iface bond1 inet manual
+     mtu 9000
+     bond-mode 4
+     bond_xmit_hash_policy layer3+4
+     bond-lacp-rate 1
+     bond-miimon 100
+     slaves em4 p4p1
+
+auto em3
+iface em3 inet static
+    address SERVICENET_IP
+    netmask 27
+        post-up ip route add 10.191.192.0/18 via 10.141.35.225 dev em3
+        pre-down ip route del 10.191.192.0/18 via 10.141.35.225 dev em3
+
+# Container management VLAN interface (optional for RGW)
+auto bond0.MGMT_VLAN
+iface bond0.MGMT_VLAN inet manual
+    mtu 1500
+    vlan-raw-device bond0
+
+# Storage network VLAN interface (REQUIRED)
+auto bond0.STORE_VLAN
+iface bond0.STORE_VLAN inet manual
+    mtu 9000
+    vlan-raw-device bond0
+
+# Ceph Replication network (REQUIRED)
+auto bond1.REPL_VLAN
+iface bond1.REPL_VLAN inet manual
+    mtu 9000
+    vlan-raw-device bond1
+
+# Management bridge  (Only needed for RGW)
+auto br-mgmt
+iface br-mgmt inet static
+    mtu 1500
+    bridge_stp off
+    bridge_waitport 0
+    bridge_fd 0
+    # Bridge port references tagged interface
+    bridge_ports bond0.MGMT_VLAN
+    address MGMT_IP
+    netmask 255.255.252.0
+
+# Storage bridge (optional)
+auto br-storage
+iface br-storage inet static
+    mtu 9000
+    bridge_stp off
+    bridge_waitport 0
+    bridge_fd 0
+    # Bridge port reference tagged interface
+    bridge_ports bond0.STORE_VLAN
+    address STORAGE_IP
+    netmask 255.255.252.0
+
+# Ceph Replication bridge (optional)
+auto br-repl
+iface br-repl inet static
+    mtu 9000
+    bridge_stp off
+    bridge_waitport 0
+    bridge_fd 0
+    # Bridge port reference tagged interface
+    bridge_ports bond1.REPL_VLAN
+    address REPL_IP
+    netmask 255.255.252.0
+
 ```
 
 ## Start Ceph deployment
