@@ -1,0 +1,35 @@
+---
+- hosts: nodes
+  remote_user: root
+
+  tasks:
+  - name: Test connection to servers
+    ping:
+
+
+  - name: Create SSD Volume Groups
+    lvg:
+      vg: "{{ item.value.vg }}"
+      pvs: "/dev/{{ item.key }}"
+    loop: "{{ drives.ssd|dict2items }}"
+
+  - name: Create SSD Logical Volumes (db)
+    lvol:
+      vg: "{{ item.value.db_vg }}"
+      lv: "{{ item.value.db_lv }}"
+      size: "{{ db_size }}"
+    loop: "{{ drives.ssd|dict2items }}"
+
+  - name: Create SSD Logical Volumes (wal)
+    lvol:
+      vg: "{{ item.value.wal_vg }}"
+      lv: "{{ item.value.wal_lv }}"
+      size: "{{ wal_size }}"
+    loop: "{{ drives.ssd|dict2items }}"
+
+  - name: Create SSD Logical Volumes (data)
+    lvol:
+      vg: "{{ item.value.data_vg }}"
+      lv: "{{ item.value.data_lv }}"
+      size: "100%FREE"
+    loop: "{{ drives.ssd|dict2items }}"
