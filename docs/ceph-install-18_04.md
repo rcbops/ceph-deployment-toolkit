@@ -31,7 +31,7 @@ echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
 apt install python
 ```
 
-#### clone the ceph-toolkit repo onto the deployment host
+#### Clone the ceph-toolkit repo onto the deployment host
 
 ``` 
 apt install -y git
