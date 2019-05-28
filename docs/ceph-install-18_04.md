@@ -24,7 +24,7 @@ ssh-keygen
 <enter>
 cat ~/.ssh/id_rsa.pub
 ```
-##### Add the key to all servers. Also, check for python and install if needed
+#### Add the key to all servers. Also, check for python and install if needed
 
 ``` 
 echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
@@ -49,7 +49,8 @@ bash scripts/prepare-deployment.sh
 ```
 vim /opt/ceph-toolkit/env_inventory
 ```
-example:
+Example
+
 ```
 [nodes]
 Bulbasaur
