@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# This script grabs the number of placement groups in each pool and provides the following information 
+#    - the number of placement groups in each pool
+#    - the number of objects in each pool
+#    - the number of objects per placement group in each pool
+#
+# The output is formatted for easy copypasta into tickets
+
+
 printf "\nPG REPORT\n"
 
 printf "\n"
