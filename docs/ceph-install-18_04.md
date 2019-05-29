@@ -42,6 +42,8 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
+virtualenv venv
+. venv/bin/activate
 bash scripts/prepare-deployment.sh
 ```
 
@@ -172,18 +174,18 @@ There are examples of both scenarios inside ./playbooks/vars/
 
 ### Run the partioning playbook for the type of environment you are trying to deploy
 
-For non-collocated, run
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-collocated-partitioning.yml
-```
-
 For collocated, run
 
 ```
 cd /opt/ceph-toolkit
 ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/collocated-partitioning.yml
+```
+
+For non-collocated, run
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-collocated-partitioning.yml
 ```
 
 

@@ -49,6 +49,7 @@ ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
 
 # Configure Frontend and Backend network ranges
 
+monitor_address_block: FRONTEND-NETWORK-CIDR
 public_network: FRONTEND-NETWORK-CIDR
 cluster_network: BACKEND-NETWORK-CIDR
 
@@ -163,7 +164,7 @@ openstack_keys:
 
 
 # Tuning Defaults DO NOT CHANGE WITHOUT CONSULTING RPC-STORAGE
-
+ceph_conf_overrides: "{{ ceph_conf_overrides_all }}"
 ceph_conf_overrides_all:
    global:
      debug_lockdep: "0/0"
@@ -220,18 +221,3 @@ ceph_conf_overrides_all:
      filestore_merge_threshold: 40
      filestore_split_multiple: 8
      filestore_max_sync_interval: 10
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
