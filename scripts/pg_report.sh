@@ -2,7 +2,6 @@
 
 printf "\nPG REPORT\n"
 
-
 printf "\n"
 for x in $(ceph osd pool ls); do
   OBJECTS=$(rados df -p $x |head -2 |tail -1 |awk '{print $3}');
