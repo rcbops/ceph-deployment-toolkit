@@ -78,29 +78,29 @@ db_size: "200G" # 4% of the drive size
 drives:
   ssd:
     sdb:
-      name: ceph-data1
-      db_lv: ceph-db1
-      wal_lv: ceph-wal1
+      name: ceph-data01
+      db_lv: ceph-db01
+      wal_lv: ceph-wal01
     sdc:
-      name: ceph-data2
-      db_lv: ceph-db2
-      wal_lv: ceph-wal2
+      name: ceph-data02
+      db_lv: ceph-db02
+      wal_lv: ceph-wal02
     sdd:
-      name: ceph-data3
-      db_lv: ceph-db3
-      wal_lv: ceph-wal3
+      name: ceph-data03
+      db_lv: ceph-db03
+      wal_lv: ceph-wal03
     sde:
-      name: ceph-data4
-      db_lv: ceph-db4
-      wal_lv: ceph-wal4
+      name: ceph-data04
+      db_lv: ceph-db04
+      wal_lv: ceph-wal04
     sdf:
-      name: ceph-data5
-      db_lv: ceph-db5
-      wal_lv: ceph-wal5
+      name: ceph-data05
+      db_lv: ceph-db05
+      wal_lv: ceph-wal05
     sdg:
-      name: ceph-data6
-      db_lv: ceph-db6
-      wal_lv: ceph-wal6
+      name: ceph-data06
+      db_lv: ceph-db06
+      wal_lv: ceph-wal06
 
 ```
 

@@ -38,16 +38,16 @@ osd_scenario: lvm
 #  - data: "ceph-data03"
 #    data_vg: "ceph-data03"
 #    wal: "ceph-wal03"
-#    wal_vg: "ceph-ssd2"
+#    wal_vg: "ceph-ssd02"
 #    db: "ceph-db03"
-#    db_vg: "ceph-ssd2"
+#    db_vg: "ceph-ssd02"
 #
 #  - data: "ceph-data04"
 #    data_vg: "ceph-data04"
 #    wal: "ceph-wal04"
-#    wal_vg: "ceph-ssd2"
+#    wal_vg: "ceph-ssd02"
 #    db: "ceph-db04"
-#    db_vg: "ceph-ssd2"
+#    db_vg: "ceph-ssd02"
 
 
 
@@ -58,19 +58,19 @@ osd_scenario: lvm
 # These partitions should be set up by the collocated-partitioning playbook in common-playbooks
 
 #lvm_volumes:
-#  - data: "ceph-data01" # This is the data logical volume on the first SSD
-#    data_vg: "ceph-ssd01" # This is the volume group for the first SSD
-#    wal: "ceph-wal01" # This is the wal logical volume on the first SSD
-#    wal_vg: "ceph-ssd01" # This is the volume group for the first SSD
-#    db: "ceph-db01" # This is the db logical volume for the first SSD
-#    db_vg: "ceph-ssd01" # This is the volume group for the first SSD
+#  - data: "ceph-data01" # This is the data logical volume on the first data
+#    data_vg: "ceph-data01" # This is the volume group for the first SSD
+#    wal: "ceph-wal01" # This is the wal logical volume on the first data
+#    wal_vg: "ceph-data01" # This is the volume group for the first SSD
+#    db: "ceph-db01" # This is the db logical volume for the first data
+#    db_vg: "ceph-data01" # This is the volume group for the first SSD
 # 
-#  - data: "ceph-data02" # This is the data logical volume on the second SSD
-#    data_vg: "ceph-ssd02" # This is the volume group for the second SSD
-#    wal: "ceph-wal02" # This is the wal logical volume on the second SSD
-#    wal_vg: "ceph-ssd02" # This is the volume group for the second SSD
-#    db: "ceph-db02" # This is the db logical volume for the second SSD
-#    db_vg: "ceph-ssd02" # This is the volume group for the second SSD
+#  - data: "ceph-data02" # This is the data logical volume on the second data
+#    data_vg: "ceph-data02" # This is the volume group for the second SSD
+#    wal: "ceph-wal02" # This is the wal logical volume on the second data
+#    wal_vg: "ceph-data02" # This is the volume group for the second SSD
+#    db: "ceph-db02" # This is the db logical volume for the second data
+#    db_vg: "ceph-data02" # This is the volume group for the second SSD
 
 
 
