@@ -308,6 +308,7 @@ iface br-repl inet static
 
 ``` 
 cd /opt/ceph-ansible
+ln -s /opt/ceph-toolkit/venv venv
 vim ceph_inventory
 ```
 
@@ -365,7 +366,8 @@ cp /opt/ceph-toolkit/playbooks/vars/rgws.default.yml /opt/ceph-ansible/group_var
 ### Run site.yml to deploy Ceph
 
 ```
-cp /opt/ceph-ansible/site.sample.yml /opt/ceph-ansible/site.yml
+cd /opt/ceph-ansible
+ln -s site.sample.yml site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
