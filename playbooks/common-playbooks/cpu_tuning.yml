@@ -51,9 +51,16 @@
       register: rc_local_check
 
     - name: Create rc.local
-      shell: "touch /etc/rc.local"
-      when: rc_local_check.exists == false
+      shell: 'echo "#!/bin/sh\n\nexit 0" > /etc/rc.local'
+      when: rc_local_check.stat.exists == false
 
+    - name: Set rc.local to executable
+      file:
+        path: /etc/rc.local
+        owner: root
+        group: root
+        mode: '0755'
+        
     - name: Persist cpuidle disable in rc.local
       lineinfile:
         path: /etc/rc.local
