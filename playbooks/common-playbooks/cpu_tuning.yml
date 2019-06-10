@@ -27,9 +27,9 @@
 
     - name: "Set CPU Governor to {{ governor }}"
       lineinfile:
-        path: /etc/default/cpufrequtils
+        path: /etc/init.d/cpufrequtils
         regexp: '^GOVERNOR'
-        line: 'GOVERNOR="{{ governor }}'
+        line: 'GOVERNOR="{{ governor }}"'
         state: present
         create: true
       notify: restart cpufrequtils
@@ -44,6 +44,15 @@
       shell: "echo 1 | tee /sys/devices/system/cpu/cpu*/cpuidle/state{{ item }}/disable"
       with_items: "{{ disable_cpuidle_states }}"
       when: cpuidle_check.stat.exists
+
+    - name: Check for rc.local   # rc.local does not exist on 18.04
+      stat:
+        path: /etc/rc.local
+      register: rc_local_check
+
+    - name: Create rc.local
+      shell: "touch /etc/rc.local"
+      when: rc_local_check.exists == false
 
     - name: Persist cpuidle disable in rc.local
       lineinfile:
