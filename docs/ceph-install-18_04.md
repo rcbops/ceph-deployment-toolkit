@@ -358,12 +358,12 @@ Charmander
 ### Copy the premade files from the toolkit to ceph-ansible
 
 ```
-cp /opt/ceph-toolkit/playbooks/vars/all.default.yml /opt/ceph-ansible/group_vars/all.yml
-cp /opt/ceph-toolkit/playbooks/vars/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
-cp /opt/ceph-toolkit/playbooks/vars/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
-cp /opt/ceph-toolkit/playbooks/vars/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
-cp /opt/ceph-toolkit/playbooks/vars/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
-cp /opt/ceph-toolkit/playbooks/vars/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
+cp /opt/ceph-toolkit/defaults/all.default.yml /opt/ceph-ansible/group_vars/all.yml
+cp /opt/ceph-toolkit/defaults/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
+cp /opt/ceph-toolkit/defaults/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
+cp /opt/ceph-toolkit/defaults/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
+cp /opt/ceph-toolkit/defaults/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
+cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
 ```
 
 ### Fill in the info in all.yml and osds.yml. Read the instructions in each file.
