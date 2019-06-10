@@ -371,3 +371,25 @@ ln -s site.sample.yml site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
+__Glossary__
+
+Collocated - Occurs when every single drive in a ceph cluster is a SSD. The wal and db partitions will share the SSD with the data partition
+
+
+Non-Collocated - Occurs when there are HDD with a small number of SSDs. The HDD drives will hold the data partition while the SSDs will hold the wal and db partitions for each osd
+
+
+OSD - Data drive
+
+
+MON - Ceph 'monitor'. This is more like an infra node than like monitoring.
+
+
+RGW - Rados Gateway. Ceph's Object Storage.
+
+
+MDS - Ceph Metadata Server. Used for CephFS.
+
+
+
+
