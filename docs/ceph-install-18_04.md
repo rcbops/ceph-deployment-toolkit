@@ -188,6 +188,12 @@ cd /opt/ceph-toolkit
 ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-collocated-partitioning.yml
 ```
 
+### Set the performance scaling governor and disable cpu idle states
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i env_inventory ./playbooks/common-playbooks/cpu_tuning.yml
+```
 
 ### Setup Networking on all the ceph servers
 
