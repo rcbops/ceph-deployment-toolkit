@@ -92,11 +92,11 @@ You will need:
 ```
 openstack service create --name=swift --description="Swift Service" object-store
 
-openstack endpoint create swift --region RegionOne public "https://{EXTERNAL_VIP}:8080/swift/v1/%(tenant_id)s"
+openstack endpoint create swift --region RegionOne public "https://{EXTERNAL_VIP}:443/swift/v1/%(tenant_id)s"
 
-openstack endpoint create swift --region RegionOne admin "https://{INTERNAL_VIP}:8080/swift/v1/%(tenant_id)s"
+openstack endpoint create swift --region RegionOne admin "https://{INTERNAL_VIP}:443/swift/v1/%(tenant_id)s"
 
-openstack endpoint create swift --region RegionOne internal "https://{INTERNAL VIP:8080/swift/v1/%(tenant_id)"
+openstack endpoint create swift --region RegionOne internal "https://{INTERNAL VIP:443/swift/v1/%(tenant_id)"
 
 openstack user create swift --project service --password {Swift Password}
 
