@@ -28,8 +28,9 @@ that the cross connects are functioning as expected.
 Install iperf3 to all ceph nodes
 
 ```
-cd /opt/rpc-ceph
-ceph-ansible -i ceph_inventory all -m apt -a "name=iperf3 state=present"
+source /opt/ceph-toolkit/venv/bin/activate
+cd /opt/ceph-ansible
+ansible -i ceph_inventory all -m apt -a "name=iperf3 state=present"
 ```
 
 You will need to test both the storage network (br-storage) and the replication network (br-repl)
@@ -49,8 +50,8 @@ iperf3 --server
 Run the network test from ceph01
 
 ```
-ceph-ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c ${BR-STORAGE IP OF IPERF3 SERVER}' --limit 'all:!{IPERF3 SERVER}' --forks 1
-ceph-ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c ${BR-REPL IP OF IPERF3 SERVER}' --limit 'all:!{IPERF3 SERVER}' --forks 1
+ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c ${BR-STORAGE IP OF IPERF3 SERVER}' --limit 'all:!{IPERF3 SERVER}' --forks 1
+ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c ${BR-REPL IP OF IPERF3 SERVER}' --limit 'all:!{IPERF3 SERVER}' --forks 1
 ```
 
 All of your Bandwidth speeds should be close to the same. More importantly, they 
@@ -63,7 +64,7 @@ Example Output
 #### From Clients
 
 ```
-root@Flareon:/opt/rpc-ceph# ceph-ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c 172.29.244.62' --limit 'all:!Jolteon' --forks 1
+root@Flareon:/opt/ceph-ansible# ansible -i ceph_inventory all -m shell -a 'iperf3 -i 0 -c 172.29.244.62' --limit 'all:!Jolteon' --forks 1
 Flareon | SUCCESS | rc=0 >>
 Connecting to host 172.29.244.62, port 5201
 [  4] local 172.29.244.61 port 43654 connected to 172.29.244.62 port 5201
@@ -263,13 +264,15 @@ If I have three cabs, I will run three tests.
 
 ## Part 2: Drive Partitioning Validation
 
-The goal here is to confirm that rpc-ceph has set itself up correctly. You 
+The goal here is to confirm that ceph-ansible has set itself up correctly. You 
 should confirm that the drives that are expected to be the journal drives
 _are in fact the journal drives_. You should have also set up the drives 
 each in their own RAID 0. Below is what I use to confirm in my lab
 
 ```
-ceph-ansible -i ceph_inventory all -m shell -a 'lsblk'
+source /opt/ceph-toolkit/venv/bin/activate
+cd /opt/ceph-ansible
+ansible -i ceph_inventory all -m shell -a 'lsblk'
 ```
 
 The deployments team should add examples of what is correct to this section.
