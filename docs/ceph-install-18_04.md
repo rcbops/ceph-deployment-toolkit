@@ -1,5 +1,8 @@
 # Ceph Install for Ubuntu 18.04+
 
+It is assumed that all nodes have Ubuntu (18.04+) installed, and servers are accessible via ssh from the deployment node.
+
+Unless specified otherwise, all commands are run from the deployment node. Usually, the deployment node is the first ceph node.
 
 ## Setup environment for automation
 
@@ -27,14 +30,14 @@ cat ~/.ssh/id_rsa.pub
 #### Add the key to all ceph servers. Also, check for python and install if needed
 
 ``` 
-echo "PUBLIC_KEY" >> ~/.ssh/authorized_keys
-apt install python
+ssh-copyid  <hostname>
+ssh <hostname> apt install python
 ```
 
 #### Clone the ceph-toolkit repo onto the deployment host
 
 ``` 
-apt install -y git
+apt install -y git virtualenv
 git clone <url of the repo> /opt/ceph-toolkit
 ```
 
@@ -42,8 +45,8 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
-virtualenv venv
-. venv/bin/activate
+virtualenv ceph_deploy
+. ceph_deploy/bin/activate
 bash scripts/prepare-deployment.sh
 ```
 
@@ -80,7 +83,7 @@ Eevee
 
 ### Prepare the drives.yml file for the type of environment you are deploying.
 
-It is recomended that if you have a fast tier and slow tier of osd nodes that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook 
+If you have a fast tier and slow tier of osd nodes, then it is recommended that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook. 
  
 
 * 4% of your OSD drive size = db_size
@@ -189,6 +192,7 @@ drives:
 ```
 
 There are examples of both scenarios inside ./playbooks/vars/
+Note that each HDD will use two LVs on the SSDs (one each for WAL and DB).  Verify that each SSD is large enough for all of the LVs to be created on it. If necessary, the wal_size and/or db_size may need to be reduced, but consult with the storage team if this is necessary.
 
 
 ### Run the partioning playbook for the type of environment you are trying to deploy. If you have both types, you need to run both.
@@ -326,6 +330,16 @@ iface br-repl inet static
     netmask 255.255.252.0
 
 ```
+### Verify Networking
+Ensure all nodes can ping deployment node via frontend storage network:
+```
+ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
+```
+Ensure all nodes can ping deployment node via backend replication network:
+```
+ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
+```
+(consider verifying network throughput as well. iperf?)
 
 ## Start Ceph deployment
 
@@ -333,7 +347,7 @@ iface br-repl inet static
 
 ``` 
 cd /opt/ceph-ansible
-ln -s /opt/ceph-toolkit/venv venv
+ln -s /opt/ceph-toolkit/ceph_deploy ceph_deploy
 vim ceph_inventory
 ```
 
