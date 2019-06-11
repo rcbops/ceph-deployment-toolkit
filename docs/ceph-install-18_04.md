@@ -51,6 +51,7 @@ bash scripts/prepare-deployment.sh
 #### Servers that will require colocated partitioning need to be in a colocated group
 #### Servers that will require non-colocated partitioning need to be in a noncolocated group
 
+If you don't know what colocated or noncolocated is, see the glossary at the end of this doc.
 
 ```
 vim /opt/ceph-toolkit/env_inventory
@@ -77,7 +78,10 @@ Eevee
 
 ```
 
-### Prepare the drives.yml file for the type of environment you are deploying 
+### Prepare the drives.yml file for the type of environment you are deploying.
+
+It is recomended that if you have a fast tier and slow tier of osd nodes that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook 
+ 
 
 * 4% of your OSD drive size = db_size
 
@@ -187,20 +191,20 @@ drives:
 There are examples of both scenarios inside ./playbooks/vars/
 
 
-### Run the partioning playbook for the type of environment you are trying to deploy
+### Run the partioning playbook for the type of environment you are trying to deploy. If you have both types, you need to run both.
 
-For collocated, run
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/collocated-partitioning.yml
-```
-
-For non-collocated, run
+For colocated, run
 
 ```
 cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-collocated-partitioning.yml
+ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/colocated-partitioning.yml
+```
+
+For non-colocated, run
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-colocated-partitioning.yml
 ```
 
 ### Set the performance scaling governor and disable cpu idle states
