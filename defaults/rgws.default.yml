@@ -2,10 +2,10 @@
 
 # This is a prepopulated rgws.yml file
 
-# Fill in the Public Netowrk, Internal VIP endpoint for keystone, and the swift password from openstack
+# Fill in the Management Netowrk, Internal VIP endpoint for keystone, and the swift password from openstack
 
 # network info
-radosgw_address_block: "PUBLIC NETWORK"
+radosgw_address_block: "MGMT NETWORK"
 radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
 internal_lb_vip_address: "INTERNAL_LB_VIP_ADDR"
 keystone_service_adminurl: "http://{{ internal_lb_vip_address }}:35357"
