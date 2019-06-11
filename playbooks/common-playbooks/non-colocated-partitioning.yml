@@ -1,5 +1,5 @@
 ---
-- hosts: nodes
+- hosts: noncolocated
   remote_user: root
   
 
