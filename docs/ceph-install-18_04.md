@@ -48,6 +48,10 @@ bash scripts/prepare-deployment.sh
 ```
 
 ### Create inventory for the pre-deployment automation 
+#### Servers that will require colocated partitioning need to be in a colocated group
+#### Servers that will require non-colocated partitioning need to be in a noncolocated group
+
+
 ```
 vim /opt/ceph-toolkit/env_inventory
 ```
@@ -60,6 +64,17 @@ Squirtle
 Charmander
 Pikachu
 Eevee
+
+[colocated]
+Bulbasaur
+Squirtle
+Charmander
+
+[noncolocated]
+Pikachu
+Eevee
+
+
 ```
 
 ### Prepare the drives.yml file for the type of environment you are deploying 
