@@ -396,6 +396,16 @@ ln -s site.sample.yml site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
+### Set tunables and enable the balancer 
+
+```
+ceph osd set-require-min-compat-client luminous
+ceph mgr module enable balancer
+ceph balancer mode upmap
+ceph osd crush tunables optimal 
+ceph balancer on
+```
+
 __Glossary__
 
 Colocated - Occurs when every single drive in a ceph cluster is a SSD. The wal and db partitions will share the SSD with the data partition
