@@ -1,5 +1,5 @@
 ---
-- hosts: collocated
+- hosts: colocated
   remote_user: root
 
   tasks:
