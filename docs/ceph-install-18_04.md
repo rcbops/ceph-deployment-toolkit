@@ -347,7 +347,7 @@ ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_I
 
 ``` 
 cd /opt/ceph-ansible
-ln -s /opt/ceph-toolkit/ceph_deploy ceph_deploy
+source /opt/ceph-toolkit/ceph_deploy ceph_deploy
 vim ceph_inventory
 ```
 
@@ -406,7 +406,7 @@ cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws
 
 ```
 cd /opt/ceph-ansible
-ln -s site.sample.yml site.yml
+cp site.sample.yml site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
