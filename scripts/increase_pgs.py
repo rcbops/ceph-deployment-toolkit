@@ -68,14 +68,7 @@ while pool_pgs < max_pgs:
   # if we've hit the target quit
   if new_pgs == max_pgs:
     print str(datetime.datetime.now()) + "Pool " + pool + " set to " + max_pgs + ".  Update complete"
-
     exit(0)
-
-  pool_pgs = get_pool_pgs( pool )
-  time.sleep( 30 )
-
-
-    exit
 
   pool_pgs = get_pool_pgs( pool )
   time.sleep( 30 )
