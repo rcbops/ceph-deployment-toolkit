@@ -24,9 +24,9 @@ except KeyError:
                 print('  - data: ' + loaded_file['drives']['ssd'][drive]['name'])
                 print('    data_vg: ' + loaded_file['drives']['ssd'][drive]['name'])
                 print('    wal: ' + loaded_file['drives']['ssd'][drive]['wal_lv'])
-                print('    wal_lv: ' + loaded_file['drives']['ssd'][drive]['wal_lv'])
+                print('    wal_vg: ' + loaded_file['drives']['ssd'][drive]['name'])
                 print('    db: ' + loaded_file['drives']['ssd'][drive]['db_lv'])
-                print('    db_lv: ' + loaded_file['drives']['ssd'][drive]['db_lv'])
+                print('    db_vg: ' + loaded_file['drives']['ssd'][drive]['name'])
     except KeyError:
         print("Error in drives.yml")
         exit(1)
