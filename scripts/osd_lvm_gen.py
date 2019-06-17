@@ -1,6 +1,6 @@
 import yaml
 
-drive_file = file('drives.yml','r')
+drive_file = file('../drives.yml','r')
 loaded_file = yaml.load(drive_file)
 
 try:
