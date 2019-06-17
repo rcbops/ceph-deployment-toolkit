@@ -164,6 +164,10 @@ openstack_keys:
 
 
 # Tuning Defaults DO NOT CHANGE WITHOUT CONSULTING RPC-STORAGE
+
+osd_pool_default_size: 3
+osd_pool_default_min_size: 2
+
 ceph_conf_overrides: "{{ ceph_conf_overrides_all }}"
 ceph_conf_overrides_all:
    global:

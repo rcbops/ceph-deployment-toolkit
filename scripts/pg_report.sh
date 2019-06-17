@@ -7,14 +7,14 @@
 #
 # The output is formatted for easy copypasta into tickets
 
+echo -e "\nPG REPORT\n"
+echo '                          Pool        PGs         Objects  Objects per PG'
+echo '------------------------------ ---------- --------------- ---------------'
 
-printf "\nPG REPORT\n"
-
-printf "\n"
-for x in $(ceph osd pool ls); do
-  OBJECTS=$(rados df -p $x |head -2 |tail -1 |awk '{print $3}');
-  PGS=$(ceph osd pool get $x pg_num |awk '{print $NF}');
-  OBJECTS_PER_PG=$(( 100 * $OBJECTS / $PGS));
-  OBJECTS_PER_PG=$( echo $OBJECTS_PER_PG |sed 's/..$/.&/' );
-  printf "%30s: %15d pgs  %15s total objects  %15s Objects per PG \n" $x $(echo "$PGS")  $(echo -n "$OBJECTS") $( echo "$OBJECTS_PER_PG")
+ceph df -f json | jq -r -c '.pools[]' | while IFS='' read pool; do
+  NAME="$(echo $pool | jq -r '.name')"
+  OBJECTS=$(echo $pool | jq '.stats.objects')
+  PGS=$(ceph osd pool get $NAME pg_num | awk '{print $NF}')
+  OBJECTS_PER_PG=$(echo "scale=2; $OBJECTS / $PGS" | bc)
+  printf "%30s %10d %15s %15s \n" "$NAME"  "$PGS"  "$OBJECTS" "$OBJECTS_PER_PG"
 done

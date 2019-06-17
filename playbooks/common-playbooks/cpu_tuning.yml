@@ -1,0 +1,105 @@
+---
+- hosts: nodes
+  become: true
+  vars:
+      governor: "{{ cpu_governor | default('performance') }}"
+      disable_cpuidle_states: [2,3,4]
+      enable_cpuidle_states: []
+
+  tasks:
+    
+    - name: Check for cpuidle 
+      stat:
+        path: /sys/devices/system/cpu/cpu0/cpuidle
+      register: cpuidle_check
+
+    - name: Disable ondemand service # OnDemand will reenable the ondemand governor on reboot. Disabling it removes this issue
+      service:
+        name: ondemand
+        state: stopped
+        enabled: false
+
+    - name: Install cpufrequtils
+      apt:
+        name: cpufrequtils
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: "Set CPU Governor to {{ governor }}"
+      lineinfile:
+        path: /etc/init.d/cpufrequtils
+        regexp: '^GOVERNOR'
+        line: 'GOVERNOR="{{ governor }}"'
+        state: present
+        create: true
+      notify: restart cpufrequtils
+
+    - name: Start and enable cpufrequtils
+      service:
+        name: cpufrequtils
+        enabled: true
+        state: started
+      
+    - name: Disable cpuidle states
+      shell: "echo 1 | tee /sys/devices/system/cpu/cpu*/cpuidle/state{{ item }}/disable"
+      with_items: "{{ disable_cpuidle_states }}"
+      when: cpuidle_check.stat.exists
+
+    - name: Check for rc.local   # rc.local does not exist on 18.04
+      stat:
+        path: /etc/rc.local
+      register: rc_local_check
+
+    - name: Create rc.local
+      shell: 'echo "#!/bin/sh\n\nexit 0" > /etc/rc.local'
+      when: rc_local_check.stat.exists == false
+
+    - name: Set rc.local to executable
+      file:
+        path: /etc/rc.local
+        owner: root
+        group: root
+        mode: '0755'
+        
+    - name: Persist cpuidle disable in rc.local
+      lineinfile:
+        path: /etc/rc.local
+        line: "echo 1 | tee /sys/devices/system/cpu/cpu*/cpuidle/state{{ item }}/disable"
+        regexp: '^echo (0|1) \| tee /sys/devices/system/cpu/cpu\*/cpuidle/state{{ item }}/disable'
+        insertbefore: '^exit 0$'
+      with_items: "{{ disable_cpuidle_states }}"
+      when: cpuidle_check.stat.exists
+
+    - name: Enable cpuidle states
+      shell: "echo 0 | tee /sys/devices/system/cpu/cpu*/cpuidle/state{{ item }}/disable"
+      with_items: "{{ enable_cpuidle_states }}"
+      when: cpuidle_check.stat.exists
+
+    - name: Persist cpuidle enable in rc.local
+      lineinfile:
+        path: /etc/rc.local
+        line: "echo 0 | tee /sys/devices/system/cpu/cpu*/cpuidle/state{{ item }}/disable"
+        regexp: '^echo (0|1) \| tee /sys/devices/system/cpu/cpu\*/cpuidle/state{{ item }}/disable'
+        insertbefore: '^exit 0$'
+      with_items: "{{ enable_cpuidle_states }}"
+      when: cpuidle_check.stat.exists
+
+    - name: Check cpufreq
+      command: "cat /sys/devices/system/cpu/cpu{{ item }}/cpufreq/scaling_governor"
+      with_sequence: "start=0 count={{ ansible_processor_vcpus }}"
+      register: check_governor
+      failed_when: check_governor.rc > 1
+      changed_when: false
+
+    - name: "restart cpufrequtils if not {{ governor }}"
+      debug:
+         msg: "Checking current governor"
+      notify: restart cpufrequtils
+      changed_when: "'{{ governor }}' not in item.stdout"
+      with_items: "{{ check_governor.results }}"
+
+  handlers:
+    - name: restart cpufrequtils
+      service:
+         name: cpufrequtils
+         state: restarted

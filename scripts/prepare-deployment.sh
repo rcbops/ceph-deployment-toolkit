@@ -14,7 +14,7 @@ echo " ################################################"
 #add-apt-repository ppa:ansible/ansible
 #apt update
 #apt install ansible=$ANSIBLE_VERSION
-pip install ansible==2.6.0
+pip install ansible==$ANSIBLE_VERSION
 pip install notario
 pip install netaddr
 

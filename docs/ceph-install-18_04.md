@@ -1,5 +1,8 @@
 # Ceph Install for Ubuntu 18.04+
 
+It is assumed that all nodes have Ubuntu (18.04+) installed, and servers are accessible via ssh from the deployment node.
+
+Unless specified otherwise, all commands are run from the deployment node. Usually, the deployment node is the first ceph node.
 
 ## Setup environment for automation
 
@@ -27,14 +30,14 @@ cat ~/.ssh/id_rsa.pub
 #### Add the key to all ceph servers. Also, check for python and install if needed
 
 ``` 
-echo "PUBLIC_KEY" >> ~/.ssh/authorized_keys
-apt install python
+ssh-copyid  <hostname>
+ssh <hostname> apt install python
 ```
 
 #### Clone the ceph-toolkit repo onto the deployment host
 
 ``` 
-apt install -y git
+apt install -y git virtualenv
 git clone <url of the repo> /opt/ceph-toolkit
 ```
 
@@ -42,12 +45,17 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
-virtualenv venv
-. venv/bin/activate
+virtualenv ceph_deploy
+. ceph_deploy/bin/activate
 bash scripts/prepare-deployment.sh
 ```
 
 ### Create inventory for the pre-deployment automation 
+#### Servers that will require colocated partitioning need to be in a colocated group
+#### Servers that will require non-colocated partitioning need to be in a noncolocated group
+
+If you don't know what colocated or noncolocated is, see the glossary at the end of this doc.
+
 ```
 vim /opt/ceph-toolkit/env_inventory
 ```
@@ -60,9 +68,23 @@ Squirtle
 Charmander
 Pikachu
 Eevee
+
+[colocated]
+Bulbasaur
+Squirtle
+Charmander
+
+[noncolocated]
+Pikachu
+Eevee
+
+
 ```
 
-### Prepare the drives.yml file for the type of environment you are deploying 
+### Prepare the drives.yml file for the type of environment you are deploying.
+
+If you have a fast tier and slow tier of osd nodes, then it is recommended that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook. 
+ 
 
 * 4% of your OSD drive size = db_size
 
@@ -78,29 +100,29 @@ db_size: "200G" # 4% of the drive size
 drives:
   ssd:
     sdb:
-      name: ceph-data1
-      db_lv: ceph-db1
-      wal_lv: ceph-wal1
+      name: ceph-data01
+      db_lv: ceph-db01
+      wal_lv: ceph-wal01
     sdc:
-      name: ceph-data2
-      db_lv: ceph-db2
-      wal_lv: ceph-wal2
+      name: ceph-data02
+      db_lv: ceph-db02
+      wal_lv: ceph-wal02
     sdd:
-      name: ceph-data3
-      db_lv: ceph-db3
-      wal_lv: ceph-wal3
+      name: ceph-data03
+      db_lv: ceph-db03
+      wal_lv: ceph-wal03
     sde:
-      name: ceph-data4
-      db_lv: ceph-db4
-      wal_lv: ceph-wal4
+      name: ceph-data04
+      db_lv: ceph-db04
+      wal_lv: ceph-wal04
     sdf:
-      name: ceph-data5
-      db_lv: ceph-db5
-      wal_lv: ceph-wal5
+      name: ceph-data05
+      db_lv: ceph-db05
+      wal_lv: ceph-wal05
     sdg:
-      name: ceph-data6
-      db_lv: ceph-db6
-      wal_lv: ceph-wal6
+      name: ceph-data06
+      db_lv: ceph-db06
+      wal_lv: ceph-wal06
 
 ```
 
@@ -170,24 +192,31 @@ drives:
 ```
 
 There are examples of both scenarios inside ./playbooks/vars/
+Note that each HDD will use two LVs on the SSDs (one each for WAL and DB).  Verify that each SSD is large enough for all of the LVs to be created on it. If necessary, the wal_size and/or db_size may need to be reduced, but consult with the storage team if this is necessary.
 
 
-### Run the partioning playbook for the type of environment you are trying to deploy
+### Run the partioning playbook for the type of environment you are trying to deploy. If you have both types, you need to run both.
 
-For collocated, run
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/collocated-partitioning.yml
-```
-
-For non-collocated, run
+For colocated, run
 
 ```
 cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-collocated-partitioning.yml
+ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/colocated-partitioning.yml
 ```
 
+For non-colocated, run
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-colocated-partitioning.yml
+```
+
+### Set the performance scaling governor and disable cpu idle states
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i env_inventory ./playbooks/common-playbooks/cpu_tuning.yml
+```
 
 ### Setup Networking on all the ceph servers
 
@@ -301,6 +330,16 @@ iface br-repl inet static
     netmask 255.255.252.0
 
 ```
+### Verify Networking
+Ensure all nodes can ping deployment node via frontend storage network:
+```
+ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
+```
+Ensure all nodes can ping deployment node via backend replication network:
+```
+ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
+```
+(consider verifying network throughput as well. iperf?)
 
 ## Start Ceph deployment
 
@@ -308,6 +347,7 @@ iface br-repl inet static
 
 ``` 
 cd /opt/ceph-ansible
+source /opt/ceph-toolkit/ceph_deploy ceph_deploy
 vim ceph_inventory
 ```
 
@@ -351,12 +391,12 @@ Charmander
 ### Copy the premade files from the toolkit to ceph-ansible
 
 ```
-cp /opt/ceph-toolkit/playbooks/vars/all.default.yml /opt/ceph-ansible/group_vars/all.yml
-cp /opt/ceph-toolkit/playbooks/vars/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
-cp /opt/ceph-toolkit/playbooks/vars/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
-cp /opt/ceph-toolkit/playbooks/vars/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
-cp /opt/ceph-toolkit/playbooks/vars/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
-cp /opt/ceph-toolkit/playbooks/vars/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
+cp /opt/ceph-toolkit/defaults/all.default.yml /opt/ceph-ansible/group_vars/all.yml
+cp /opt/ceph-toolkit/defaults/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
+cp /opt/ceph-toolkit/defaults/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
+cp /opt/ceph-toolkit/defaults/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
+cp /opt/ceph-toolkit/defaults/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
+cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
 ```
 
 ### Fill in the info in all.yml and osds.yml. Read the instructions in each file.
@@ -365,7 +405,40 @@ cp /opt/ceph-toolkit/playbooks/vars/rgws.default.yml /opt/ceph-ansible/group_var
 ### Run site.yml to deploy Ceph
 
 ```
-cp /opt/ceph-ansible/site.sample.yml /opt/ceph-ansible/site.yml
+cd /opt/ceph-ansible
+cp site.sample.yml site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
+
+### Set tunables and enable the balancer 
+
+```
+ceph osd set-require-min-compat-client luminous
+ceph mgr module enable balancer
+ceph balancer mode upmap
+ceph osd crush tunables optimal 
+ceph balancer on
+```
+
+__Glossary__
+
+Colocated - Occurs when every single drive in a ceph cluster is a SSD. The wal and db partitions will share the SSD with the data partition
+
+
+Non-Collocated - Occurs when there are HDD with a small number of SSDs. The HDD drives will hold the data partition while the SSDs will hold the wal and db partitions for each osd
+
+
+OSD - Data drive
+
+
+MON - Ceph 'monitor'. This is more like an infra node than like monitoring.
+
+
+RGW - Rados Gateway. Ceph's Object Storage.
+
+
+MDS - Ceph Metadata Server. Used for CephFS.
+
+
+
 
