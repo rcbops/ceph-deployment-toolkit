@@ -13,6 +13,7 @@ pool = 'volumes'
 max_pgs = 1024
 new_pgs = 0
 
+
 def get_pool_pgs( pool ):
   pg_stats = json.loads( subprocess.check_output(["ceph", "osd", "pool", "get", pool, "pg_num", "-f", "json"]) )
   pool_pgs = int( pg_stats['pg_num'] )
@@ -44,7 +45,7 @@ while pool_pgs < max_pgs:
     misplaced = float( m.group(1) )
     print "MISPLACED: " + str(misplaced)
     sys.stdout.flush()
-    
+
     # number of pgs to set the pool to
     if (pool_pgs+add_pgs) < max_pgs:
       new_pgs = pool_pgs+add_pgs
@@ -67,7 +68,14 @@ while pool_pgs < max_pgs:
   # if we've hit the target quit
   if new_pgs == max_pgs:
     print str(datetime.datetime.now()) + "Pool " + pool + " set to " + max_pgs + ".  Update complete"
+
     exit(0)
+
+  pool_pgs = get_pool_pgs( pool )
+  time.sleep( 30 )
+
+
+    exit
 
   pool_pgs = get_pool_pgs( pool )
   time.sleep( 30 )
