@@ -406,7 +406,7 @@ cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws
 
 ```
 cd /opt/ceph-ansible
-cp site.sample.yml site.yml
+cp site.yml.sample site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
