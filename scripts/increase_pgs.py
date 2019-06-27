@@ -22,11 +22,6 @@ pool = str(args.pool)
 max_pgs = int(args.target_number)
 new_pgs = 0
 
-print(misplaced_threshold)
-print(add_pgs)
-print(pool)
-print(max_pgs)
-
 def get_pool_pgs( pool ):
   pg_stats = json.loads( str(subprocess.check_output(["ceph", "osd", "pool", "get", pool, "pg_num", "-f", "json"])) )
   pool_pgs = int( pg_stats['pg_num'] )
