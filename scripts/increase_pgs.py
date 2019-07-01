@@ -10,9 +10,9 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Increase the number of placement groups of a pool in a ceph cluster')
 parser.add_argument("pool", help="STRING pool that you are increasing the number of pgs in", type=str)
-parser.add_argument("target_number", help="INT the number of pgs you want to end with",type=int)
-parser.add_argument("scale", help="INT the amount of pgs to add at each step",type=int)
-parser.add_argument("misplaced_max", help="FLOAT The percentage of objects that can be misplaced"type=float)
+parser.add_argument("target_number", help="INT the number of pgs you want to end with", type=int)
+parser.add_argument("scale", help="INT the amount of pgs to add at each step", type=int)
+parser.add_argument("misplaced_max", help="FLOAT The percentage of objects that can be misplaced", type=float)
 
 args = parser.parse_args()
 
