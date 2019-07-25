@@ -73,11 +73,11 @@ while pool_pgs < max_pgs:
     sys.stdout.flush()
     set_pool_pgs( pool, new_pgs )
 
+  pool_pgs = get_pool_pgs( pool )
   # if we've hit the target quit
-  if new_pgs == max_pgs:
-    print(str(datetime.datetime.now()) + "Pool " + pool + " set to " + str(max_pgs) + ".  Update complete")
+  if pool_pgs == max_pgs:
+    print(str(datetime.datetime.now()) + "Pool " + pool + " set to " + str(pool_pgs) + ".  Update complete")
     exit(0)
 
-  pool_pgs = get_pool_pgs( pool )
   time.sleep( 30 )
 
