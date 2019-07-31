@@ -78,9 +78,9 @@ openstack endpoint create swift --region RegionOne public "https://{EXTERNAL_VIP
 
 openstack endpoint create swift --region RegionOne admin "http://{INTERNAL_VIP}:8080/swift/v1/%(tenant_id)s"
 
-openstack endpoint create swift --region RegionOne internal "http://{INTERNAL VIP:8080/swift/v1/%(tenant_id)"
+openstack endpoint create swift --region RegionOne internal "http://{INTERNAL_VIP}:8080/swift/v1/%(tenant_id)s"
 
-openstack user create swift --project service --password {Swift Password}
+openstack user create swift --project service --password {Swift Service Password}
 
 openstack role add --project service --user swift admin
 ```
