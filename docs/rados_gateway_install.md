@@ -52,7 +52,7 @@ You will need to run this command from the Rados Gateway nodes
 
 
 ```
-ceph daemon /var/run/ceph/ceph-client.rgw.(hostname).asok config show | grep keystone
+ceph daemon /var/run/ceph/ceph-client.rgw.$(hostname).*asok config show | grep keystone
 ```
 
 Confirm that the **User**,**password**, and **keystone endpoint** are correct.
