@@ -2,42 +2,32 @@
 
 # This is a prepopulated rgws.yml file
 
+# The double quotes are important, do not remove them
+
 # Fill in the Management Netowrk, Internal VIP endpoint for keystone, and the swift password from openstack
 
-# network info
-radosgw_address_block: "MGMT NETWORK"
-radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
-internal_lb_vip_address: "INTERNAL_LB_VIP_ADDR"
-keystone_service_adminurl: "http://{{ internal_lb_vip_address }}:35357"
 
-radosgw_keystone: true
-radosgw_keystone_service_name: "cephRGW"
-radosgw_keystone_service_type: "object-store"
-radosgw_keystone_service_description: "Ceph RADOS Gateway Service"
-radosgw_keystone_admin_user: swift
-radosgw_keystone_admin_tenant: service
-radosgw_keystone_admin_password: SWIFT PASSWORD FROM OPENSTACK
+radosgw_address_block: <MGMT_NETWORK_CIDR>
+radosgw_civetweb_port: 8080
+radosgw_civetweb_num_threads: 512
+radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }} ssl_certificate=/etc/ceph/ssl_combined.pem"
 
 
-ceph_conf_overrides_rgw_default:
-  client:
-    rgw_cache_lru_size: 250000
-    rgw_thread_pool_size: 8192
-    rgw_num_rados_handles: 8
-ceph_conf_overrides_rgw_keystone:
-  client:
-    rgw_cache_lru_size: 250000
-    rgw_thread_pool_size: 8192
-    rgw_num_rados_handles: 8
-  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":    
-    # OpenStack integration with Keystone
-    rgw_keystone_url: "{{ keystone_service_adminurl }}"
-    rgw_keystone_api_version: 3
-    rgw_keystone_admin_user: "{{ radosgw_keystone_admin_user }}"
-    rgw_keystone_admin_password: "{{ radosgw_keystone_admin_password }}"
-    rgw_keystone_admin_tenant: "{{ radosgw_keystone_admin_tenant }}"
-    rgw_keystone_admin_domain: default
-    rgw_keystone_accepted_roles: 'Member, _member_, admin'
-    rgw_s3_auth_use_keystone: true
-    rgw_swift_account_in_url: true
-    rgw_keystone_implicit_tenants: true
+ceph_conf_overrides:
+  "client":
+    "rgw cache lru size": "250000"
+    "rgw thread pool size": "8192"
+    "rgw num rados handles": "8192"
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
+    "rgw keystone api version": "3"
+    "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
+    "rgw keystone admin user": "swift"
+    "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
+    "rgw keystone admin tenant": "service"
+    "rgw keystone admin domain": "default"
+    "rgw keystone accepted roles": "Member, _member_, admin"
+    "rgw keystone token cache size:": "10000"
+    "rgw keystone revocation interval": "900"
+    "rgw s3 auth use keystone": "true"
+    "rgw swift account in url": "true"
+    "rgw keystone implicit tenants": "true" 
