@@ -199,11 +199,11 @@ Reboot each node so that the network configs take.
 ### Verify Networking
 Ensure all nodes can ping deployment node via frontend storage network:
 ```
-ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
+ansible -i env_inventory all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
 ```
 Ensure all nodes can ping deployment node via backend replication network:
 ```
-ansible -i env_inventory all -m shell 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
+ansible -i env_inventory all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
 ```
 
 If these commands hang, double check that the switches are properly configured for jumbo frames.
@@ -215,7 +215,7 @@ If these commands hang, double check that the switches are properly configured f
 If you have a fast tier and slow tier of osd nodes, then it is recommended that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook. 
  
 
-* 4% of your OSD drive size = db_size
+* 4% of a single OSD drive size = db_size
 
 * 2GB = wal_size
 
@@ -224,7 +224,7 @@ If you have all SSD drives, your drives.yml should be set up like this ...
 ```
 ---
 wal_size: "2G"
-db_size: "200G" # 4% of the drive size
+db_size: "200G" # 30GB or 4% of a single osd drive size, whichever is larger
 
 drives:
   ssd:
@@ -260,7 +260,7 @@ If you have SSD Journals and HDD OSDs, your drives.yml should be set up like thi
 ```
 ---
 wal_size: "2G"
-db_size: "200G" # 4% of osd drive size
+db_size: "200G" #  30GB or 4% of a single osd drive size, whichever is larger
 
 drives:
   ssd:
