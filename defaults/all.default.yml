@@ -4,6 +4,11 @@
 # Fill in the needed info to set up your cluster. 
 # If you have any questions, contact RPC-STORAGE
 
+# Enable the Ubuntu 18.04 default time synchronization
+# service.
+ntp_service_enabled: true
+ntp_daemon_type: chronyd
+
 ceph_release_num:
   dumpling: 0.67
   emperor: 0.72
