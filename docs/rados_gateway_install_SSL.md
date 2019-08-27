@@ -4,6 +4,8 @@ Rados Gateway is the Object Storage service provided by Ceph. It exposes a Swift
 to consume their Ceph storage cluster. This is the installation process to first install Rados Gateway, and 
 then expose it to the Openstack Environment using SSL.
 
+** This document assumes you are installing on a greenfield environment **
+
 ### Rados Gateway Installation 
 
 These steps are executed from the Ceph Deployment node. (typically the first ceph mon node)
@@ -61,7 +63,7 @@ ansible -i ceph_inventory rgws -m copy -a 'src=/opt/ceph-ansible/ssl_combined.pe
 ```
 source /opt/ceph-toolkit/venv/bin/activate
 cd /opt/ceph-ansible
-ansible-playbook -i ceph_inventory -e @/opt/ceph-toolkit/playbooks/vars/disable-restarts.yml site.yml
+ansible-playbook -i ceph_inventory site.yml
 ```
 
 #### Confirm that the correct values have been deployed to the Rados Gateway nodes
