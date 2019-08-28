@@ -28,8 +28,8 @@ def get_pool_pgs( pool ):
   return pool_pgs
 
 def set_pool_pgs( pool, pgs ):
-  subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pool_pgs+add_pgs)])
-  subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pool_pgs+add_pgs)])
+  subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pgs)])
+  subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pgs)])
 
 
 # get the current number of pgs in the target pool
@@ -46,6 +46,17 @@ while pool_pgs < max_pgs:
     print("Exiting! Cluster is in HEALTH_ERR!")
     exit(1)
 
+  # check if there are any OSD_NEARFULL conditions
+  if 'OSD_NEARFULL' in health['checks']:
+    print("Exiting! Resume when nearfull OSDs have been resolved.")
+    exit(1)
+
+  # number of pgs to set the pool to
+  if (pool_pgs+add_pgs) < max_pgs:
+    new_pgs = pool_pgs+add_pgs
+  else:
+    new_pgs = max_pgs
+
   # if there are objects misplaced, wait until they're below the threshold
   if 'OBJECT_MISPLACED' in health['checks']:
     #print( json.dumps(health['checks']['OBJECT_MISPLACED']['summary']['message']) )
@@ -53,12 +64,6 @@ while pool_pgs < max_pgs:
     misplaced = float( m.group(1) )
     print("MISPLACED: " + str(misplaced))
     sys.stdout.flush()
-
-    # number of pgs to set the pool to
-    if (pool_pgs+add_pgs) < max_pgs:
-      new_pgs = pool_pgs+add_pgs
-    else:
-      new_pgs = max_pgs
 
     # if we're ready for an increase update the pg settings on the pool
     if misplaced < misplaced_threshold:
