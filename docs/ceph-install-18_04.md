@@ -420,11 +420,29 @@ ansible-playbook -i ceph_inventory site.yml
 
 ```
 ceph osd set-require-min-compat-client luminous
-ceph mgr module enable balancer
+ceph mgr module enable balancer 
 ceph balancer mode upmap
 ceph osd crush tunables optimal 
 ceph balancer on
 ```
+### Enable the Ceph Dashboard
+
+Record what the username and password are for the dashboard in a Runbook
+
+```
+ceph mgr module enable dashboard
+ceph dashboard create-self-signed-cert
+ceph dashboard set-login-credentials <username> <password>
+ceph mgr module disable dashboard
+ceph mgr module enable dashboard
+```
+
+Check that the dashboard is enabled
+```
+ceph mgr services
+```
+Navigate to the dashboard and log in with the username/password you recorded from before
+
 
 __Glossary__
 
