@@ -1,0 +1,79 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  name: Upgrade software
+  tasks:
+    # Use a block to perform tasks conditionally—only if running Ubuntu 16.04.
+    - block:
+
+      - debug:
+          msg: 'This server is running Ubuntu 16.04 LTS and will be upgraded to 18.04 LTS.'
+
+      # Now would be a good time to take a backup if you can trigger an
+      # automated backup!
+
+      - name: Remove the EOL message of the day if one exists.
+        file:
+          path: "{{ item }}"
+          state: absent
+        with_items:
+          - /etc/update-motd.d/99-esm
+          - /run/motd.dynamic
+
+      - name: Upgrade all packages to the latest version
+        apt: update_cache=yes upgrade=full
+
+      - name: Ensure update-manager-core is installed.
+        apt: name=update-manager-core state=present
+
+      - name: Run do-release-upgrade non-interactively.
+        command: do-release-upgrade -f DistUpgradeViewNonInteractive
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
+
+- hosts: all
+  become: yes
+  name: Rolling Reboot
+  serial: 1
+  vars:
+    health_osd_check_retries: 40
+    health_osd_check_delay: 30
+    mon_group_name: "mons"
+    cluster: "ceph"
+  tasks:
+      - name: set osd flags
+        command: ceph --cluster {{ cluster }} osd set {{ item }}
+        with_items:
+          - noout
+          - norebalance
+        delegate_to: "{{ groups[mon_group_name][0] }}"
+
+      - name: Reboot the server.
+        reboot:
+
+      - name: get num_pgs - non container
+        command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
+        register: ceph_pgs
+        delegate_to: "{{ groups[mon_group_name][0] }}"
+
+      - name: waiting for clean pgs...
+        command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
+        register: ceph_health_post
+        until: >
+          (((ceph_health_post.stdout | from_json).pgmap.pgs_by_state | length) > 0)
+          and
+          (((ceph_health_post.stdout | from_json).pgmap.pgs_by_state | selectattr('state_name', 'search', '^active\\+clean') | map(attribute='count') | list | sum) == (ceph_pgs.stdout | from_json).pgmap.num_pgs)
+        delegate_to: "{{ groups[mon_group_name][0] }}"
+        retries: "{{ health_osd_check_retries }}"
+        delay: "{{ health_osd_check_delay }}"
+        when:
+          - (ceph_pgs.stdout | from_json).pgmap.num_pgs != 0
+
+      - name: waiting for all mons online...
+        command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
+        register: ceph_health_post
+        until: >
+          ((ceph_health_post.stdout | from_json).health.checks.MON_DOWN is not defined)
+        delegate_to: "{{ groups[mon_group_name][0] }}"
+        retries: "{{ health_osd_check_retries }}"
+        delay: "{{ health_osd_check_delay }}"
