@@ -160,7 +160,7 @@ vim /opt/ceph_inventory.yml
 ### Set the needed flags to prevent rebalance from occuring
 
 ```
-ceph osd set norecovery
+ceph osd set norecover
 ceph osd set norebalance
 ```
 ---
@@ -191,7 +191,7 @@ Many pgs will be in a `remapped` status, this is expected.
 You will have to run this script multiple times, and not all pgs will go out of the `remapped` status. Stop running it once the number of `remapped` pgs does not decrease.
 
 ```
-python /opt/ceph-toolkit/scripts/upmap-remapped.py
+python /opt/ceph-toolkit/scripts/upmap-remapped.py | sh
 ```
 
 ---
@@ -216,7 +216,7 @@ ceph osd crush set-device-class <hdd or ssd> osd.<id>
 Some data will move, but it should be quick
 
 ```
-ceph osd unset norecovery
+ceph osd unset norecover
 ceph osd unset norebalance
 
 watch ceph -s 
