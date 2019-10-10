@@ -38,7 +38,7 @@ You will need to test both the storage network (br-storage) and the replication 
 Check that the node has both networks
 
 ```
-ip a l | grep 'storage|repl'
+ip a l | grep 'storage\|repl'
 ```
 
 On the first node that has both networks, you will start the iperf3 server
