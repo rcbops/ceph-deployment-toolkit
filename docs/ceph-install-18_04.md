@@ -37,7 +37,6 @@ ssh <hostname> apt install python
 #### Clone the ceph-toolkit repo onto the deployment host
 
 ``` 
-apt install -y git virtualenv
 git clone <url of the repo> /opt/ceph-toolkit
 ```
 
@@ -45,8 +44,6 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
-virtualenv ceph_deploy
-. ceph_deploy/bin/activate
 bash scripts/prepare-deployment.sh
 ```
 

@@ -7,6 +7,21 @@ then
 fi
 source ./cephrc
 
+echo " #################################"
+echo " # INSTALLING GIT AND VIRTUALENV #"
+echo " #################################"
+
+apt install -y git virtualenv
+
+
+echo " ###################################"
+echo " # CREATING ceph_deploy VIRTUALENV #"
+echo " ###################################"
+
+virtualenv ceph_deploy
+source ceph_deploy/bin/activate
+
+
 echo " ################################################"
 echo " # DOWNLOADING ANSIBLE VERSION $ANSIBLE_VERSION #"
 echo " ################################################"
@@ -18,12 +33,21 @@ pip install ansible==$ANSIBLE_VERSION
 pip install notario
 pip install netaddr
 
-echo "######################################################"
-echo "# CLONING CEPH-ANSIBLE VERSION $CEPH_ANSIBLE_VERSION #"
-echo "######################################################"
 
-git clone https://github.com/ceph/ceph-ansible.git /opt/ceph-ansible
+if [ ! -d ${CEPH_ANSIBLE_DIR} ]
+then
+    echo "########################"
+    echo "# CLONING CEPH-ANSIBLE #"
+    echo "########################"
 
-cd /opt/ceph-ansible && git checkout $CEPH_ANSIBLE_VERSION
+    git clone https://github.com/ceph/ceph-ansible.git ${CEPH_ANSIBLE_DIR}
+fi
+
+echo "###########################################################"
+echo "# CHECKING OUT CEPH-ANSIBLE VERSION $CEPH_ANSIBLE_VERSION #"
+echo "###########################################################"
+
+cd ${CEPH_ANSIBLE_DIR} && git checkout $CEPH_ANSIBLE_VERSION
+    
 
 echo "Environment prepared for automation" 
