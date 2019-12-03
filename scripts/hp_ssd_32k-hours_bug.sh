@@ -35,7 +35,7 @@ do
 done
 
 # check for affected drives and provide counts
-if [ $(cat ${TEMP_DRIVES} |wc -l) -gt 0 ]
+if [ $(cat ${TEMP_DRIVES} |egrep "${AFFECTED_MODELS}" |wc -l) -gt 0 ]
 then
   echo "Detected affected drive models, firmware HPD8 may be required"
   egrep "${AFFECTED_MODELS}" ${TEMP_DRIVES} |uniq -c
