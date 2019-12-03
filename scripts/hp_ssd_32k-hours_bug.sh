@@ -19,14 +19,35 @@ fi
 
 
 # collect all drive models on the system
-TEMP_DRIVES=$( mktemp /tmp/temptest.XXXXXXX )
+TEMP_DRIVES=$( mktemp /tmp/hp_drives.XXXXXXX )
 for SLOT in $( ${SSACLI} controller all show config |awk '/in Slot/ {print $6}' )
 do
   ${SSACLI} controller slot=${SLOT} pd all show detail |awk '/Model/ {print $3}' >> ${TEMP_DRIVES}
 done
 
 # check for affected drives and provide counts
-egrep "${AFFECTED_MODELS}" ${TEMP_DRIVES} |unic -c
+if [ $(cat ${TEMP_DRIVES} |wc -l) -gt 0 ]
+then
+  echo "Detected affected drive models, firmware HPD8 may be required"
+  egrep "${AFFECTED_MODELS}" ${TEMP_DRIVES} |uniq -c
+  echo
+
+  for SLOT in $( ${SSACLI} controller all show config |awk '/in Slot/ {print $6}' )
+  do
+    for PD in $( hpssacli controller slot=${SLOT} pd all show |awk '/physicaldrive/ {print $2}' )
+    do
+      TEMP_DRIVE_DETAIL=$( mktemp /tmp/hp_drive_detail.XXXXXXX )
+      ${SSACLI} controller slot=${SLOT} pd ${PD} show detail >> ${TEMP_DRIVE_DETAIL}
+      if [ $(egrep "${AFFECTED_MODELS}" ${TEMP_DRIVE_DETAIL} |wc -l) -gt 0 ]
+      then
+        MODEL=$(awk '/Model/ {print $NF}' ${TEMP_DRIVE_DETAIL})
+        FIRMWARE=$(awk '/Firmware/ {print $NF}' ${TEMP_DRIVE_DETAIL})
+        echo "slot=${SLOT} pd ${PD}: model ${MODEL} firmware ${FIRMWARE}"
+      fi
+      rm ${TEMP_DRIVE_DETAIL}
+    done
+  done
+fi
 
 # clean up
 rm ${TEMP_DRIVES}
