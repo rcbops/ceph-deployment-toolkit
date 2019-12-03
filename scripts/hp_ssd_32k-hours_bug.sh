@@ -4,13 +4,18 @@
 # https://support.hpe.com/hpsc/doc/public/display?docId=emr_na-a00092491en_us
 AFFECTED_MODELS="VO0480JFDGT|VO0960JFDGU|VO1920JFDGV|VO3840JFDHA|MO0400JFFCF|MO0800JFFCH|MO1600JFFCK|MO3200JFFCL|VO000480JWDAR|VO000960JWDAT|VO001920JWDAU|VO003840JWDAV|VO007680JWCNK|VO015300JWCNL|VK000960JWSSQ|VK001920JWSSR|VK003840JWSST|VK003840JWSST|VK007680JWSSU|VO015300JWSSV"
 
-VENDOR="$(dmidecode |awk '/Vendor/ {print $2}')"
-
-# check for HP
-if [ "${VENDOR}" != "HP" ]
+DMIDECODE=$(which dmidecode)
+if [ -n "${DMIDECODE}" ]
 then
-  echo "Does not appear to be HP: [${VENDOR}]"
-  exit 1
+  VENDOR="$(dmidecode |awk '/Vendor/ {print $2}')"
+
+  # check for HP
+  echo ${VENDOR} |egrep "^HP" &>/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo "Does not appear to be HP: [${VENDOR}]"
+    exit 1
+  fi
 fi
 
 # find the installed ssacli tool
