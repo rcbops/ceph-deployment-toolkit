@@ -6,7 +6,7 @@ AFFECTED_MODELS="VO0480JFDGT|VO0960JFDGU|VO1920JFDGV|VO3840JFDHA|MO0400JFFCF|MO0
 
 VENDOR="$(dmidecode |awk '/Vendor/ {print $2}')"
 
-# Dell
+# check for HP
 if [ "${VENDOR}" != "HP" ]
 then
   echo "Does not appear to be HP: [${VENDOR}]"
