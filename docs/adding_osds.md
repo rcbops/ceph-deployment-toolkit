@@ -168,6 +168,8 @@ ceph osd set norebalance
 
 ### Run the add-osd.yml playbook with the no-restart variables added
 
+It is best to run these playbooks inside a dedicated window since the potential for client latency exists.
+
 ```
 grep -q tmux.log 2>/dev/null ~/.tmux.conf || cat << _EOF >> ~/.tmux.conf
 bind-key H pipe-pane -o "exec cat >>$HOME/'#W-tmux.log'" \; display-message 'Toggled logging to $HOME/#W-tmux.log'
