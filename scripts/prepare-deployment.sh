@@ -47,7 +47,7 @@ echo "###########################################################"
 echo "# CHECKING OUT CEPH-ANSIBLE VERSION $CEPH_ANSIBLE_VERSION #"
 echo "###########################################################"
 
-cd ${CEPH_ANSIBLE_DIR} && git checkout $CEPH_ANSIBLE_VERSION
+cd ${CEPH_ANSIBLE_DIR} && git fetch && git checkout $CEPH_ANSIBLE_VERSION
     
 
 echo "Environment prepared for automation" 
