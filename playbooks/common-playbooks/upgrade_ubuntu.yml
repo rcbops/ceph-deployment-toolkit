@@ -31,7 +31,7 @@
         command: do-release-upgrade -m server -f DistUpgradeViewNonInteractive
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
 
-- hosts: all
+- hosts: all:!mons
   become: yes
   name: Rolling Reboot
   serial: 1
