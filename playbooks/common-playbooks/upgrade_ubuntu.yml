@@ -50,6 +50,8 @@
 
       - name: Reboot the server.
         reboot:
+          pre_reboot_delay: 60
+          reboot_timeout: 1200
 
       - name: get num_pgs - non container
         command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
