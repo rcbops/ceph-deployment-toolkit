@@ -8,23 +8,38 @@
     health_osd_check_delay: 30
     mon_group_name: "mons"
     cluster: "ceph"
+    reboot_marker: "/ceph_rolling_rebooted"
   tasks:
+      - name: Check if server has already been rebooted
+        stat:
+          path: "{{ reboot_marker }}"
+        register: already_rebooted
+
       - name: set osd flags
         command: ceph --cluster {{ cluster }} osd set {{ item }}
         with_items:
           - noout
-          - norebalance
         delegate_to: "{{ groups[mon_group_name][0] }}"
+        when: already_rebooted.stat.exists == False
 
       - name: Reboot the server.
         reboot:
           pre_reboot_delay: 60
           reboot_timeout: 1200
+        when: already_rebooted.stat.exists == False
+
+      - name: Mark server rebooted
+        file:
+          path: /ceph_rolling_rebooted
+          state: touch
+          mode: u=rw,g=r,o=r
+        when: already_rebooted.stat.exists == False
 
       - name: get num_pgs - non container
         command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
         register: ceph_pgs
         delegate_to: "{{ groups[mon_group_name][0] }}"
+        when: already_rebooted.stat.exists == False
 
       - name: waiting for clean pgs...
         command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
@@ -37,6 +52,7 @@
         retries: "{{ health_osd_check_retries }}"
         delay: "{{ health_osd_check_delay }}"
         when:
+          - already_rebooted.stat.exists == False
           - (ceph_pgs.stdout | from_json).pgmap.num_pgs != 0
 
       - name: waiting for all mons online...
@@ -47,3 +63,15 @@
         delegate_to: "{{ groups[mon_group_name][0] }}"
         retries: "{{ health_osd_check_retries }}"
         delay: "{{ health_osd_check_delay }}"
+        when: already_rebooted.stat.exists == False
+
+- hosts: all
+  become: yes
+  name: Remove reboot markers
+  vars:
+    reboot_marker: "/ceph_rolling_rebooted"
+  tasks:
+      - name: Check if server has already been rebooted
+        file:
+          path: "{{ reboot_marker }}"
+          state: absent
