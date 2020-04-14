@@ -2,7 +2,10 @@
 
 ### This script needs to be run somewhere with SSH passwordless auth to the ceph mons, generally mon01 in the cluster
 ### On a controller for openstack, you can query the DB to match volumes to instances with:
-### for x in $(awk '{print $3}' output_from_this_script.txt |egrep -v "^clients" |sort -u  |sed -e 's/volume-//g'); do mysql -e "select cinder.volume_attachment.instance_uuid, cinder.volume_attachment.volume_id, cinder.volumes.project_id from cinder.volume_attachment, cinder.volumes where volumes.id='$x' and volume_attachment.volume_id='$x' and volume_attachment.attach_status='attached';"; done >  ceph_volumes_instances
+## VOLUMES=$(awk '!/^clients/ {print $3}' ceph_jewel_clients.txt |grep "volume-" |sed -e 's/.*\/volume-//g' |sort -u |awk '{ print "\""$1"\""; }' |paste -sd ",") 
+## mysql -e "select cinder.volume_attachment.instance_uuid, cinder.volume_attachment.volume_id, cinder.volumes.project_id from cinder.volumes join (cinder.volume_attachment) on (cinder.volume_attachment.volume_id = cinder.volumes.id) where cinder.volumes.id in (${VOLUMES}) and cinder.volume_attachment.attach_status='attached';" > ceph_volumes_instances
+## VMS=$(awk '!/^clients/ {print $3}' ceph_jewel_clients.txt |grep "_disk" |sed -e 's/.*\///g' |sed -e 's/_disk//g' |sort -u |awk '{ print "\""$1"\""; }' |paste -sd ",")
+## mysql -e "select nova.instances.uuid, nova.instances.hostname from nova.instances where instances.uuid in (${VMS}) ;" >> ceph_volumes_instances
 
 use Data::Dumper;
 use Getopt::Std;
