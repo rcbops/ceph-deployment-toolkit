@@ -8,7 +8,7 @@
     - block:
 
       - debug:
-          msg: 'This server is running Ubuntu 16.04 LTS and will be upgraded to 18.04 LTS.'
+          msg: 'This server is running Ubuntu 16.04 LTS and all packages will be upgraded.'
 
       # Now would be a good time to take a backup if you can trigger an
       # automated backup!
@@ -21,14 +21,41 @@
           - /etc/update-motd.d/99-esm
           - /run/motd.dynamic
 
+      - name: Update ceph repo preferences
+        copy:
+          src: ../files/ceph.pref
+          dest: /etc/apt/preferences.d/ceph.pref
+
       - name: Upgrade all packages to the latest version
         apt: update_cache=yes upgrade=full
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
+
+- name: Ceph Rolling Reboot
+  import_playbook: ceph_rolling_reboot.yml
+
+- hosts: all
+  gather_facts: yes
+  become: yes
+  name: Upgrade software
+  tasks:
+    # Use a block to perform tasks conditionally—only if running Ubuntu 16.04.
+    - block:
+
+      - debug:
+          msg: 'This server is running Ubuntu 16.04 LTS and will be upgraded to LTS.'
 
       - name: Ensure update-manager-core is installed.
         apt: name=update-manager-core state=present
+
+      - name: Enable Ubuntu LTS upgrades
+        replace:
+          path: /etc/update-manager/release-upgrades
+          regexp: "^(Prompt=.+)$"
+          replace: "Prompt=lts"
 
       - name: Run do-release-upgrade non-interactively.
         command: do-release-upgrade -m server -f DistUpgradeViewNonInteractive
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
 
-- import_playbook: ceph_rolling_reboot.yml
+- name: Ceph Rolling Reboot
+  import_playbook: ceph_rolling_reboot.yml
