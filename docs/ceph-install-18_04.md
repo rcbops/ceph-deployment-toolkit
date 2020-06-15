@@ -350,7 +350,7 @@ ansible-playbook -i env_inventory ./playbooks/common-playbooks/cpu_tuning.yml
 
 ``` 
 cd /opt/ceph-ansible
-source /opt/ceph-toolkit/ceph_deploy ceph_deploy
+source /opt/ceph-toolkit/ceph_deploy/bin/activate
 vim ceph_inventory
 ```
 
