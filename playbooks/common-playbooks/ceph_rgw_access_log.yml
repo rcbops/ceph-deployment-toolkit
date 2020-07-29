@@ -1,0 +1,91 @@
+---
+### The playbook creates a socket relay service to relay access logs to rsyslog, which 
+### can be logged locally, sent to a loghost, or both.
+###
+### This playbook assumes the following has been added to the RGW config already:
+# rgw enable ops log = true
+# rgw ops log rados = true
+# rgw ops log socket path = /var/run/ceph/opslog
+###
+### EXAMPLE:
+### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>]
+###
+### The playbook defaults to logging to /var/log/ceph-rgw-access and no loghost.
+###
+- hosts: rgws
+  become: yes
+  name: Ceph RGW Access Logging
+  vars:
+    rgw_opslog_socket: /var/run/ceph/opslog
+    logfile: /var/log/ceph-rgw-access
+    #loghost: 
+  tasks:
+    - name: Check log outputs
+      fail:
+        msg: 'A local logfile or loghost must be defined.'
+      when: (loghost is not defined and logfile == 'none')
+
+    - name: Check for RGW Log Socket
+      stat:
+        path: "{{ rgw_opslog_socket }}"
+      register: opslog_socket_exists
+
+    - name: Warn if RGW opslog socket is missing
+      fail:
+        msg: 'Socket /var/run/ceph/opslog missing! Ceph RGW ops log needs to be configured.'
+      ignore_errors: yes
+      when: opslog_socket_exists.stat.exists == False
+
+    - name: Install Socat Package
+      apt:
+        name: socat
+        state: present
+
+    - name: Create rsyslog config
+      copy:
+        src: ../files/ceph_rgw_access_log/etc/rsyslog.d/51-ceph-rgw.conf
+        dest: /etc/rsyslog.d/51-ceph-rgw.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Update rsyslog logfile
+      replace:
+        path: /etc/rsyslog.d/51-ceph-rgw.conf
+        regexp: '(^\s+)#(action\(type="omfile" File=")LOGFILE("\))'
+        replace: '\1\2{{ logfile }}\3'
+      when: logfile != 'none'
+
+    - name: Update rsyslog loghost
+      replace:
+        path: /etc/rsyslog.d/51-ceph-rgw.conf
+        regexp: '(^\s+)#(\*\.\* @@)LOGHOST'
+        replace: '    *.* @@{{ loghost }}'
+      when: loghost is defined
+
+    - name: Reload and restart rsyslog
+      systemd:
+        name: rsyslog
+        state: restarted
+        daemon_reload: yes
+
+    - name: Create socket relay daemon script
+      copy:
+        src: ../files/ceph_rgw_access_log/usr/local/bin/radosgw-log-relay.sh
+        dest: /usr/local/bin/radosgw-log-relay.sh
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Create socket relay service
+      copy:
+        src: ../files/ceph_rgw_access_log/etc/systemd/system/radosgw-log-relay.service
+        dest: /etc/systemd/system/radosgw-log-relay.service
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Start socket relay service
+      systemd:
+        name: radosgw-log-relay
+        state: started

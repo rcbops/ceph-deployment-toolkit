@@ -1,0 +1,11 @@
+[Unit]
+Description=Relay ceph radosgw access logs
+After=ceph-radosgw.target rsyslog.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/radosgw-log-relay.sh
+
+[Install]
+WantedBy=multi-user.target
