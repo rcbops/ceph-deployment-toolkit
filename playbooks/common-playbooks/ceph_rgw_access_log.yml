@@ -10,14 +10,14 @@
 ### EXAMPLE:
 ### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>]
 ###
-### The playbook defaults to logging to /var/log/ceph-rgw-access and no loghost.
+### The playbook defaults to logging to /var/log/ceph-rgw-access.log and no loghost.
 ###
 - hosts: rgws
   become: yes
   name: Ceph RGW Access Logging
   vars:
     rgw_opslog_socket: /var/run/ceph/opslog
-    logfile: /var/log/ceph-rgw-access
+    logfile: /var/log/ceph-rgw-access.log
     #loghost: 
   tasks:
     - name: Check log outputs
@@ -69,23 +69,39 @@
         state: restarted
         daemon_reload: yes
 
+    - name: Create logrotate for RGW access logs
+      copy:
+        src: ../files/ceph_rgw_access_log/etc/logrotate.d/ceph-rgw
+        dest: /etc/logrotate.d/ceph-rgw
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Update logrotate RGW access config
+      replace:
+        path: /etc/logrotate.d/ceph-rgw
+        regexp: '^LOGFILE'
+        replace: '{{ logfile }}'
+      when: logfile != 'none'
+
     - name: Create socket relay daemon script
       copy:
-        src: ../files/ceph_rgw_access_log/usr/local/bin/radosgw-log-relay.sh
-        dest: /usr/local/bin/radosgw-log-relay.sh
+        src: ../files/ceph_rgw_access_log/usr/local/bin/ceph-rgw-log-relay.sh
+        dest: /usr/local/bin/ceph-rgw-log-relay.sh
         owner: root
         group: root
         mode: '0755'
 
     - name: Create socket relay service
       copy:
-        src: ../files/ceph_rgw_access_log/etc/systemd/system/radosgw-log-relay.service
-        dest: /etc/systemd/system/radosgw-log-relay.service
+        src: ../files/ceph_rgw_access_log/etc/systemd/system/ceph-rgw-log-relay.service
+        dest: /etc/systemd/system/ceph-rgw-log-relay.service
         owner: root
         group: root
         mode: '0644'
 
     - name: Start socket relay service
       systemd:
-        name: radosgw-log-relay
-        state: started
+        name: ceph-rgw-log-relay
+        state: restarted
+
