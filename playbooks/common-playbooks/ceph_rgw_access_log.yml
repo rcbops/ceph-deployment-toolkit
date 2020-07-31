@@ -86,8 +86,8 @@
 
     - name: Create socket relay daemon script
       copy:
-        src: ../files/ceph_rgw_access_log/usr/local/bin/ceph-rgw-log-relay.sh
-        dest: /usr/local/bin/ceph-rgw-log-relay.sh
+        src: ../files/ceph_rgw_access_log/usr/local/sbin/ceph-rgw-log-relay.sh
+        dest: /usr/local/sbin/ceph-rgw-log-relay.sh
         owner: root
         group: root
         mode: '0755'
