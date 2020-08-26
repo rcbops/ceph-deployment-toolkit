@@ -13,64 +13,17 @@
 
 # This will always be lvm. Do not change this.
 
+# Ceph Ansibe now uses the ceph-volume lvm batch command. This analyzes the drive layout on the servers and 
+# builds partitions and osds in the most optimal way for the server. Now you just need a list of drives for 
+# ceph to use. DO NOT LIST THE OS DRIVE!
+
 osd_scenario: lvm
 
-# non-collocated example
-
-# You want half of the wal logical volumes on first SSD, and half on the second SSD.
-# The non-collocated-partitioning playbook in common-playbooks should create these for you based on drives.yml.
-
-#lvm_volumes:
-#  - data: "ceph-data01"     # This is the logical volume on your spinning disk
-#    data_vg: "ceph-data01"  # This is the volume group on your spinning disk
-#    wal: "ceph-wal01"       # This is the logical volume for wal on your first SSD 
-#    wal_vg: "ceph-ssd01"    # This is the volume group on your first SSD
-#    db: "ceph-db01"         # This is the logical volume for db on your first SSD
-#    db_vg: "ceph-ssd01"     # This is the volume group on your first SSD
-#
-#  - data: "ceph-data02"
-#    data_vg: "ceph-data02"
-#    wal: "ceph-wal02"
-#    wal_vg: "ceph-ssd01"
-#    db: "ceph-db02"
-#    db_vg: "ceph-ssd01"
-#
-#  - data: "ceph-data03"
-#    data_vg: "ceph-data03"
-#    wal: "ceph-wal03"
-#    wal_vg: "ceph-ssd02"
-#    db: "ceph-db03"
-#    db_vg: "ceph-ssd02"
-#
-#  - data: "ceph-data04"
-#    data_vg: "ceph-data04"
-#    wal: "ceph-wal04"
-#    wal_vg: "ceph-ssd02"
-#    db: "ceph-db04"
-#    db_vg: "ceph-ssd02"
-
-
-
-# collocated example
-
-# This is when every single drive is an SSD in the cluster. 
-# Your data logical volume, your wal logical volume, and your db logical volume will all live on the same SSD
-# These partitions should be set up by the collocated-partitioning playbook in common-playbooks
-
-#lvm_volumes:
-#  - data: "ceph-data01" # This is the data logical volume on the first data
-#    data_vg: "ceph-data01" # This is the volume group for the first SSD
-#    wal: "ceph-wal01" # This is the wal logical volume on the first data
-#    wal_vg: "ceph-data01" # This is the volume group for the first SSD
-#    db: "ceph-db01" # This is the db logical volume for the first data
-#    db_vg: "ceph-data01" # This is the volume group for the first SSD
-# 
-#  - data: "ceph-data02" # This is the data logical volume on the second data
-#    data_vg: "ceph-data02" # This is the volume group for the second SSD
-#    wal: "ceph-wal02" # This is the wal logical volume on the second data
-#    wal_vg: "ceph-data02" # This is the volume group for the second SSD
-#    db: "ceph-db02" # This is the db logical volume for the second data
-#    db_vg: "ceph-data02" # This is the volume group for the second SSD
+devices:
+  - list
+  - your
+  - drives
+  - here
 
 
 
