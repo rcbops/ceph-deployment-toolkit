@@ -9,6 +9,8 @@
 ntp_service_enabled: true
 ntp_daemon_type: chronyd
 
+copy_admin_key: true
+
 ceph_release_num:
   dumpling: 0.67
   emperor: 0.72
@@ -43,7 +45,7 @@ ceph_origin: repository
 ceph_repository: community
 ceph_mirror: http://download.ceph.com
 ceph_stable_key: https://download.ceph.com/keys/release.asc
-ceph_stable_release: mimic
+ceph_stable_release: nautilus
 ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
 
 # Pull NFS-Ganesha 2.7 if using CephfS (Uncomment only if using CephFS)
@@ -165,7 +167,8 @@ openstack_keys:
 #  - "{{ cephfs_data_pool }}"
 #  - "{{ cephfs_metadata_pool }}"
 
-
+dashboard_admin_password: <PASSWORD>
+grafana_admin_password: <DIFFERENT_PASSWORD>
 
 # Tuning Defaults DO NOT CHANGE WITHOUT CONSULTING RPC-STORAGE
 
@@ -226,3 +229,21 @@ ceph_conf_overrides:
      "osd_scrub_load_threshold": "10.0"
      "osd_scrub_min_interval": "129600"
      "osd_deep_scrub_interval": "1209600"
+     ceph_conf_overrides:
+  "client":
+    "rgw cache lru size": "250000"
+    "rgw thread pool size": "8192"
+    "rgw num rados handles": "8"
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}.rgw0":
+    "rgw keystone api version": "3"
+    "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
+    "rgw keystone admin user": "swift"
+    "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
+    "rgw keystone admin tenant": "service"
+    "rgw keystone admin domain": "default"
+    "rgw keystone accepted roles": "Member, _member_, admin"
+    "rgw keystone token cache size:": "10000"
+    "rgw keystone revocation interval": "900"
+    "rgw s3 auth use keystone": "true"
+    "rgw swift account in url": "true"
+    "rgw keystone implicit tenants": "true" 
