@@ -37,8 +37,11 @@ for node in osd_df_stats['nodes']:
     nvme_kb_total += node['kb']
     nvme_kb_used += node['kb_used']
 
+hdd_percent_used = float(hdd_kb_used)/float(hdd_kb_total)*100 if hdd_kb_total > 0 else 0
+ssd_percent_used = float(ssd_kb_used)/float(ssd_kb_total)*100 if ssd_kb_total > 0 else 0
+nvme_percent_used = float(nvme_kb_used)/float(nvme_kb_total)*100 if nvme_kb_total > 0 else 0
 
 print("     %9s %9s %9s" % ( "Total", "Used", "%Used" ))
-print("HDD  %9s %9s %9.1f" % ( sizeof_fmt(hdd_kb_total), sizeof_fmt(hdd_kb_used), float(hdd_kb_used)/float(hdd_kb_total)*100 ))
-print("SSD  %9s %9s %9.1f" % ( sizeof_fmt(ssd_kb_total), sizeof_fmt(ssd_kb_used), float(ssd_kb_used)/float(ssd_kb_total)*100 ))
-print("NVMe %9s %9s %9.1f" % ( sizeof_fmt(nvme_kb_total), sizeof_fmt(nvme_kb_used), float(nvme_kb_used)/float(nvme_kb_total)*100 ))
+print("HDD  %9s %9s %9.1f" % ( sizeof_fmt(hdd_kb_total), sizeof_fmt(hdd_kb_used), hdd_percent_used ))
+print("SSD  %9s %9s %9.1f" % ( sizeof_fmt(ssd_kb_total), sizeof_fmt(ssd_kb_used), ssd_percent_used ))
+print("NVMe %9s %9s %9.1f" % ( sizeof_fmt(nvme_kb_total), sizeof_fmt(nvme_kb_used), nvme_percent_used ))
