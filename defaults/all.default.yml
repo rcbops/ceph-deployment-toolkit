@@ -213,10 +213,9 @@ ceph_conf_overrides:
      "osd_pool_default_pgp_num": "128"
      "mon_osd_down_out_interval": "900"
      "mon_pg_warn_max_object_skew": "0"
-   "client":
-     "rgw_cache_lru_size": "250000"
-     "rgw_thread_pool_size": "8192"
-     "rgw_num_rados_handles": "8"
+     "objecter_inflight_op_bytes": 524288000
+     "objecter_inflight_ops": 5120
+     "mon_pg_warn_max_object_skew": 0
    "osd":
      "osd_heartbeat_min_size": "9000"
      "osd_snap_trip_priority": "1"
@@ -229,11 +228,16 @@ ceph_conf_overrides:
      "osd_scrub_load_threshold": "10.0"
      "osd_scrub_min_interval": "129600"
      "osd_deep_scrub_interval": "1209600"
-     ceph_conf_overrides:
   "client":
     "rgw cache lru size": "250000"
     "rgw thread pool size": "8192"
     "rgw num rados handles": "8"
+    "rbd_cache": "True"
+    "rbd_cache_max_dirty": 50331648
+    "rbd_cache_max_dirty_age": 15
+    "rbd_cache_size": 67108864
+    "rbd_cache_target_dirty": 33554432
+    "rbd_cache_writethrough_until_flush": "False"
   "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}.rgw0":
     "rgw keystone api version": "3"
     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
