@@ -42,7 +42,7 @@ while pool_pgs < max_pgs:
   health = json.loads( subprocess.check_output(["ceph", "health", "-f", "json"]) )
   
   # check if overall health is not ERR
-  if 'ERR' in health['overall_status']:
+  if 'ERR' in health['status']:
     print("Exiting! Cluster is in HEALTH_ERR!")
     exit(1)
 
