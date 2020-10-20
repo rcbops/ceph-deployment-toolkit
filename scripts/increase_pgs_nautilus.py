@@ -60,7 +60,11 @@ while pool_pgs < max_pgs:
     new_pgs = max_pgs
 
   # if there are objects misplaced, wait until they're below the threshold
-  if int( status['pgmap']['misplaced_total'] ) > 0:
+  if 'misplaced_total' in status['pgmap'].keys():
+    misplaced_total = int( status['pgmap']['misplaced_total'] )
+  else:
+    misplaced_total = 0
+  if misplaced_total > 0:
     misplaced = float( status['pgmap']['misplaced_ratio'] ) * 100
     print("MISPLACED: " + str(misplaced))
     sys.stdout.flush()
