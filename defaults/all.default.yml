@@ -215,7 +215,6 @@ ceph_conf_overrides:
      "mon_pg_warn_max_object_skew": "0"
      "objecter_inflight_op_bytes": 524288000
      "objecter_inflight_ops": 5120
-     "mon_pg_warn_max_object_skew": 0
    "osd":
      "osd_heartbeat_min_size": "9000"
      "osd_snap_trip_priority": "1"
