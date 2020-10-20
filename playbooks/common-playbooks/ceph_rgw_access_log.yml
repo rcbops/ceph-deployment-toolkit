@@ -8,7 +8,7 @@
 # rgw ops log socket path = /var/run/ceph/opslog
 ###
 ### EXAMPLE:
-### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>]
+### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>] [-e elasticsearch=<ES_HOST>]
 ###
 ### The playbook defaults to logging to /var/log/ceph-rgw-access.log and no loghost.
 ###
@@ -52,6 +52,14 @@
         name: rsyslog-gnutls
         state: present
       when: (elasticsearch is defined)
+
+    - name: Enable rsyslog elasticsearch module
+      copy:
+        src: ../files/ceph_rgw_access_log/etc/rsyslog.d/31-elasticsearch.conf
+        dest: /etc/rsyslog.d/31-elasticsearch.conf
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Generate rsyslog config
       template:
