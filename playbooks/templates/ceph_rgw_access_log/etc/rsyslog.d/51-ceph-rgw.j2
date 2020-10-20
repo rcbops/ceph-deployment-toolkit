@@ -1,0 +1,31 @@
+# local or remote logging
+ruleset(name="ceph-rgw-access"){
+{% if logfile != 'none' %}
+    action(type="omfile" File="{{ logfile }}")
+{% endif %}
+{% if elasticsearch is defined %}
+    action(type="omelasticsearch"
+        server="{{ elasticsearch }}"
+        serverport="9200"
+        #template="plain-syslog"
+        template="json-syslog"
+        searchIndex="rsyslog-index"
+        searchType="syslog"
+        bulkmode="on"
+        queue.type="linkedlist"
+        queue.size="5000"
+        queue.dequeuebatchsize="300"
+        action.resumeretrycount="-1"
+        errorfile="/var/log/omelasticsearch.log"
+    )
+{% endif %}
+{% if loghost is defined %}
+    *.* @@{{ loghost }}
+{% endif %}
+}
+
+#module(load="imuxsock" SysSock.Annotate="on")
+input(type="imuxsock"
+      Socket="/var/run/ceph/rsyslog-opslog"
+      Ruleset="ceph-rgw-access")
+
