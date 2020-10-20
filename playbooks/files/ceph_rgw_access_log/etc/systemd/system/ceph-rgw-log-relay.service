@@ -5,6 +5,7 @@ After=ceph-radosgw.target rsyslog.service
 [Service]
 Type=simple
 Restart=always
+RestartSec=10
 ExecStart=/usr/local/sbin/ceph-rgw-log-relay.sh
 
 [Install]

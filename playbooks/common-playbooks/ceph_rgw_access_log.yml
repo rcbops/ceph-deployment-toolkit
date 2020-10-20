@@ -8,7 +8,7 @@
 # rgw ops log socket path = /var/run/ceph/opslog
 ###
 ### EXAMPLE:
-### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>]
+### ansible-playbook ceph_rgw_access_log.yml [-e loghost=<LOGHOST>] [-e logfile=<LOG_PATH>] [-e elasticsearch=<ES_HOST>]
 ###
 ### The playbook defaults to logging to /var/log/ceph-rgw-access.log and no loghost.
 ###
@@ -22,8 +22,8 @@
   tasks:
     - name: Check log outputs
       fail:
-        msg: 'A local logfile or loghost must be defined.'
-      when: (loghost is not defined and logfile == 'none')
+        msg: 'A local logfile, loghost, or elasticsearch target must be defined.'
+      when: (loghost is not defined and elasticsearch is not defined and logfile == 'none')
 
     - name: Check for RGW Log Socket
       stat:
@@ -41,27 +41,33 @@
         name: socat
         state: present
 
-    - name: Create rsyslog config
+    - name: Install rsyslog-elasticsearch Package
+      apt:
+        name: rsyslog-elasticsearch
+        state: present
+      when: (elasticsearch is defined)
+
+    - name: Install rsyslog-gnutls Package
+      apt:
+        name: rsyslog-gnutls
+        state: present
+      when: (elasticsearch is defined)
+
+    - name: Enable rsyslog elasticsearch module
       copy:
-        src: ../files/ceph_rgw_access_log/etc/rsyslog.d/51-ceph-rgw.conf
-        dest: /etc/rsyslog.d/51-ceph-rgw.conf
+        src: ../files/ceph_rgw_access_log/etc/rsyslog.d/31-elasticsearch.conf
+        dest: /etc/rsyslog.d/31-elasticsearch.conf
         owner: root
         group: root
         mode: '0644'
 
-    - name: Update rsyslog logfile
-      replace:
-        path: /etc/rsyslog.d/51-ceph-rgw.conf
-        regexp: '(^\s+)#(action\(type="omfile" File=")LOGFILE("\))'
-        replace: '\1\2{{ logfile }}\3'
-      when: logfile != 'none'
-
-    - name: Update rsyslog loghost
-      replace:
-        path: /etc/rsyslog.d/51-ceph-rgw.conf
-        regexp: '(^\s+)#(\*\.\* @@)LOGHOST'
-        replace: '    *.* @@{{ loghost }}'
-      when: loghost is defined
+    - name: Generate rsyslog config
+      template:
+        src: ../templates/ceph_rgw_access_log/etc/rsyslog.d/51-ceph-rgw.j2
+        dest: /etc/rsyslog.d/51-ceph-rgw.conf
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Reload and restart rsyslog
       systemd:
