@@ -2,5 +2,5 @@
 Playbooks and Scripts to make deploying Ceph easy and repeatable
 
 Currently using:
-* ceph-ansible v3.2.16 
-* Ansible 2.6
+* ceph-ansible v4.0.23
+* Ansible 2.8.12
