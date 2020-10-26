@@ -43,7 +43,7 @@ vim /opt/ceph-ansible/group_vars/rgws.yml
 #### Run site.yml
 
 ```
-source /opt/ceph-toolkit/venv/bin/activate
+source /opt/ceph-toolkit/ceph_deploy/bin/activate
 cd /opt/ceph-ansible
 ansible-playbook -i ceph_inventory site.yml
 ```
