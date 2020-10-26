@@ -66,7 +66,7 @@ osd_objectstore: bluestore
 
 # RadosGW configuration (only setup if setting up RGW)
 
-# radosgw_frontend_type: civetweb # For additionnal frontends see: http://docs.ceph.com/docs/mimic/radosgw/frontends/
+# radosgw_frontend_type: beast # For additionnal frontends see: http://docs.ceph.com/docs/mimic/radosgw/frontends/
 #radosgw_civetweb_port: 8080
 #radosgw_civetweb_num_threads: 100
 #radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }}"
@@ -215,6 +215,10 @@ ceph_conf_overrides:
      "mon_pg_warn_max_object_skew": "0"
      "objecter_inflight_op_bytes": 524288000
      "objecter_inflight_ops": 5120
+     "mon_warn_on_pool_pg_num_not_power_of_two": "false"
+     "bluestore_warn_on_bluefs_spillover": "false"     
+     "mon_warn_pg_not_deep_scrubbed_ratio": 0
+     "mon_warn_pg_not_scrubbed_ratio": 0
    "osd":
      "osd_heartbeat_min_size": "9000"
      "osd_snap_trip_priority": "1"
@@ -244,9 +248,29 @@ ceph_conf_overrides:
     "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
     "rgw keystone admin tenant": "service"
     "rgw keystone admin domain": "default"
-    "rgw keystone accepted roles": "Member, _member_, admin"
+    "rgw keystone accepted roles": "Member, _member_, admin, swift_operator"
     "rgw keystone token cache size:": "10000"
     "rgw keystone revocation interval": "900"
     "rgw s3 auth use keystone": "true"
     "rgw swift account in url": "true"
     "rgw keystone implicit tenants": "true" 
+
+disable_transparent_hugepage: true
+os_tuning_params:
+  - { name: kernel.pid_max, value: 4194303 }
+  - { name: fs.file-max, value: 262144 }
+  - { name: vm.vfs_cache_pressure, value: 20 }
+  - { name: vm.dirty_background_ratio, value: 3}
+  - { name: vm.dirty_ratio, value: 10 }
+  - { name: vm.swappiness, value: 0 }
+  - { name: net.ipv4.tcp_slow_start_after_idle, value: 0 }
+  - { name: net.ipv4.tcp_max_syn_backlog, value: 4096 }
+  - { name: net.core.rmem_max, value: 56623104 }
+  - { name: net.core.wmem_max, value: 56623104 }
+  - { name: net.core.rmem_default, value: 56623104 }
+  - { name: net.core.wmem_default, value: 56623104 }
+  - { name: net.core.optmem_max, value: 40960 }
+  - { name: net.ipv4.tcp_rmem, value: 4096 87380 56623104 }
+  - { name: net.ipv4.tcp_wmem, value: 4096 87380 56623104 }
+  - { name: net.netfilter.nf_conntrack_max, value: 1048576 }
+  - { name: net.core.somaxconn, value: 8192 }
