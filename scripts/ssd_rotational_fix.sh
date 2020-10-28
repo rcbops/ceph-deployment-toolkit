@@ -10,6 +10,8 @@ function udev_apply {
     echo "Created ${UDEV_RULE_FILE}"
     cat ${UDEV_RULE_FILE}
 
+    echo 
+    echo
     echo "Applying new udev rules"
     udevadm trigger
 
