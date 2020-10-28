@@ -6,6 +6,22 @@ VENDOR="$(dmidecode |grep Vendor |awk '{print $2}')"
 omreport="/opt/dell/srvadmin/bin/omreport"
 ssaccli="/usr/sbin/ssacli"
 
+function udev_apply {
+    echo "Created ${UDEV_RULE_FILE}"
+    cat ${UDEV_RULE_FILE}
+
+    echo 
+    echo
+    echo "Applying new udev rules"
+    udevadm trigger
+
+    for DEV in $(cd /dev/; ls sd* |egrep 'sd[a-z][a-z]?$')
+    do
+        echo -n "${DEV} rotational: "
+        cat /sys/class/block/${DEV}/queue/rotational
+    done
+}
+
 
 # Dell
 if [ "${VENDOR}" = "Dell" ]
@@ -25,7 +41,7 @@ then
             fi
         fi
     done
-    
+    udev_apply
 #HP
 elif [ "${VENDOR}" = "HP" ] || [ "${VENDOR}" = "HPE" ]
 then
@@ -43,6 +59,8 @@ then
             fi
         done
     done
+    udev_apply
 else
 echo "Vendor not supported"
 fi
+
