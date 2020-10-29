@@ -13,9 +13,13 @@ then
     git clone https://github.com/rcbops/ceph-deployment-toolkit /opt/ceph-toolkit
     mv /opt/ceph-toolkit_deprecated/*inventory* /opt/ceph-toolkit/
     mv /opt/ceph-toolkit_deprecated/*.yaml /opt/ceph-toolkit/
-else
+elif [ "${INSTALLED}" = "https://github.com/rcbops/ceph-deployment-toolkit" ]
+then
     cd /opt/ceph-toolkit
     git pull
+else
+    cd /opt
+    git clone https://github.com/rcbops/ceph-deployment-toolkit /opt/ceph-toolkit
 fi
 
 # set the correct cephrc
@@ -24,6 +28,7 @@ if [ ${CEPH_MAJOR_VERSION} -eq 13 ]
 then
     cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
 elif [ ${CEPH_MAJOR_VERSION} -eq 14 ]
+then
     cp /opt/ceph-toolkit/cephrc_nautilus /opt/ceph-toolkit/cephrc
 fi
 
