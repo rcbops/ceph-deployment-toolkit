@@ -20,6 +20,9 @@ function udev_apply {
         echo -n "${DEV} rotational: "
         cat /sys/class/block/${DEV}/queue/rotational
     done
+
+    echo
+    echo "Run \"udevadm trigger\" manually if udev rules look good but rotational values are not set"
 }
 
 
