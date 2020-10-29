@@ -10,16 +10,19 @@ function udev_apply {
     echo "Created ${UDEV_RULE_FILE}"
     cat ${UDEV_RULE_FILE}
 
-    echo 
     echo
     echo "Applying new udev rules"
     udevadm trigger
+    echo
 
     for DEV in $(cd /dev/; ls sd* |egrep 'sd[a-z][a-z]?$')
     do
         echo -n "${DEV} rotational: "
         cat /sys/class/block/${DEV}/queue/rotational
     done
+
+    echo
+    echo "Run \"udevadm trigger\" manually if udev rules look good but rotational values are not set"
 }
 
 
@@ -63,4 +66,3 @@ then
 else
 echo "Vendor not supported"
 fi
-
