@@ -34,6 +34,6 @@ fi
 
 # update venvs and ceph-ansible
 cd /opt/ceph-toolkit
-bash scripts/prepare-deployement.sh
+bash /opt/ceph-toolkit/scripts/prepare-deployment.sh
 
-ln -s /opt/ceph-toolkit/ceph_deploy /opt/ceph-ansible/venv
+ln -sf /opt/ceph-toolkit/ceph_deploy /opt/ceph-ansible/venv
