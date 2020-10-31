@@ -24,7 +24,10 @@ fi
 
 # set the correct cephrc
 CEPH_MAJOR_VERSION=$(ceph -v |awk '{print $3}' |awk -F. '{print $1}')
-if [ ${CEPH_MAJOR_VERSION} -eq 13 ]
+if [ ${CEPH_MAJOR_VERSION} -eq 12 ]
+then
+    cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
+elif [ ${CEPH_MAJOR_VERSION} -eq 13 ]
 then
     cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
 elif [ ${CEPH_MAJOR_VERSION} -eq 14 ]
