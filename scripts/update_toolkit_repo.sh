@@ -26,7 +26,7 @@ esac
 
 # set the correct cephrc
 CEPH_MAJOR_VERSION=$(ceph -v |awk '{print $3}' |awk -F. '{print $1}')
-case $CEPH_MAJOR_VERSION IN
+case $CEPH_MAJOR_VERSION in
 12)
     cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
     ;;
