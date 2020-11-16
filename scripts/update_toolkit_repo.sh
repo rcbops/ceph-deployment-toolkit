@@ -4,7 +4,7 @@
 apt install -y git
 
 # check which toolkit is installed
-INSTALLED=$(cd /opt/ceph-toolkit; git remote -v  |grep fetch |awk '{print $2}')
+INSTALLED=$(cd /opt/ceph-toolkit; git remote -v  |grep fetch |awk '{print $2}' |sed -e 's/\.git//')
 
 if [ "${INSTALLED}" = "https://github.com/Alfano93/ceph-toolkit" ]
 then
