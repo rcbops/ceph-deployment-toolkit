@@ -6,34 +6,37 @@ apt install -y git
 # check which toolkit is installed
 INSTALLED=$(cd /opt/ceph-toolkit; git remote -v  |grep fetch |awk '{print $2}' |sed -e 's/\.git//')
 
-if [ "${INSTALLED}" = "https://github.com/Alfano93/ceph-toolkit" ]
-then
+case $INSTALLED in
+https://github.com/Alfano93/ceph-toolkit*)
     mv /opt/ceph-toolkit /opt/ceph-toolkit_deprecated
     cd /opt
     git clone https://github.com/rcbops/ceph-deployment-toolkit /opt/ceph-toolkit
     mv /opt/ceph-toolkit_deprecated/*inventory* /opt/ceph-toolkit/
     mv /opt/ceph-toolkit_deprecated/*.yaml /opt/ceph-toolkit/
-elif [ "${INSTALLED}" = "https://github.com/rcbops/ceph-deployment-toolkit" ]
-then
+    ;;
+https://github.com/rcbops/ceph-deployment-toolkit*)
     cd /opt/ceph-toolkit
     git pull
-else
+    ;;
+*)
     cd /opt
     git clone https://github.com/rcbops/ceph-deployment-toolkit /opt/ceph-toolkit
-fi
+    ;;
+esac
 
 # set the correct cephrc
 CEPH_MAJOR_VERSION=$(ceph -v |awk '{print $3}' |awk -F. '{print $1}')
-if [ ${CEPH_MAJOR_VERSION} -eq 12 ]
-then
+case $CEPH_MAJOR_VERSION IN
+12)
     cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
-elif [ ${CEPH_MAJOR_VERSION} -eq 13 ]
-then
+    ;;
+13)
     cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
-elif [ ${CEPH_MAJOR_VERSION} -eq 14 ]
-then
+    ;;
+14)
     cp /opt/ceph-toolkit/cephrc_nautilus /opt/ceph-toolkit/cephrc
-fi
+    ;;
+esac
 
 # update venvs and ceph-ansible
 cd /opt/ceph-toolkit
