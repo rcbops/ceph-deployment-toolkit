@@ -231,29 +231,29 @@ ceph_conf_overrides:
      "osd_scrub_load_threshold": "10.0"
      "osd_scrub_min_interval": "129600"
      "osd_deep_scrub_interval": "1209600"
-  "client":
-    "rgw cache lru size": "250000"
-    "rgw thread pool size": "8192"
-    "rgw num rados handles": "8"
-    "rbd_cache": "True"
-    "rbd_cache_max_dirty": 50331648
-    "rbd_cache_max_dirty_age": 15
-    "rbd_cache_size": 67108864
-    "rbd_cache_target_dirty": 33554432
-    "rbd_cache_writethrough_until_flush": "False"
-  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}.rgw0":
-    "rgw keystone api version": "3"
-    "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
-    "rgw keystone admin user": "swift"
-    "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
-    "rgw keystone admin tenant": "service"
-    "rgw keystone admin domain": "default"
-    "rgw keystone accepted roles": "Member, _member_, admin, swift_operator"
-    "rgw keystone token cache size:": "10000"
-    "rgw keystone revocation interval": "900"
-    "rgw s3 auth use keystone": "true"
-    "rgw swift account in url": "true"
-    "rgw keystone implicit tenants": "true" 
+   "client":
+     "rgw cache lru size": "250000"
+     "rgw thread pool size": "8192"
+     "rgw num rados handles": "8"
+     "rbd_cache": "True"
+     "rbd_cache_max_dirty": 50331648
+     "rbd_cache_max_dirty_age": 15
+     "rbd_cache_size": 67108864
+     "rbd_cache_target_dirty": 33554432
+     "rbd_cache_writethrough_until_flush": "False"
+   "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}.rgw0":
+     "rgw keystone api version": "3"
+     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
+     "rgw keystone admin user": "swift"
+     "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
+     "rgw keystone admin tenant": "service"
+     "rgw keystone admin domain": "default"
+     "rgw keystone accepted roles": "Member, _member_, admin, swift_operator"
+     "rgw keystone token cache size:": "10000"
+     "rgw keystone revocation interval": "900"
+     "rgw s3 auth use keystone": "true"
+     "rgw swift account in url": "true"
+     "rgw keystone implicit tenants": "true" 
 
 disable_transparent_hugepage: true
 os_tuning_params:
