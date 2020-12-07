@@ -81,6 +81,8 @@ osd_objectstore: bluestore
 #nfs_obj_gw: false   # DO NOT EVER SET THIS TO TRUE
 
 
+# Required for CRUSH hierarchy { osd_crush_location: { root: default, rack: rack1, host: ceph01 } }
+create_crush_tree: true
 
 
 # Openstack Pools
