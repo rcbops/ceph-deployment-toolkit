@@ -29,6 +29,7 @@ echo " ################################################"
 #add-apt-repository ppa:ansible/ansible
 #apt update
 #apt install ansible=$ANSIBLE_VERSION
+pip install --upgrade 'setuptools<45.0.0'
 pip install ansible==$ANSIBLE_VERSION
 pip install notario
 pip install netaddr
