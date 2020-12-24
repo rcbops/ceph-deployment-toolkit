@@ -88,6 +88,9 @@ def rm_upmap_pg_items(pgid):
 try:
   remapped_json = commands.getoutput('ceph pg ls remapped -f json')
   remapped = json.loads(remapped_json)
+  # For Nautilus+ the the pgs are listed within pg_stats
+  if 'pg_stats' in remapped:
+    remapped = remapped['pg_stats']
 except ValueError:
   eprint('Error loading remapped pgs')
   sys.exit(1)
