@@ -4,7 +4,7 @@
 ###
 ### This playbook assumes the following has been added to the RGW config already:
 # rgw enable ops log = true
-# rgw ops log rados = true
+# rgw ops log rados = false
 # rgw ops log socket path = /var/run/ceph/opslog
 ###
 ### EXAMPLE:
