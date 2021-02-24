@@ -1,0 +1,11 @@
+---
+### This playbook applies a patch for systems with misaligned vgs https://github.com/ceph/ceph/pull/38687
+#
+- hosts: osds
+  become: yes
+  name: Patch ceph-volume lib
+  tasks:
+    - name: Apply patch to ceph-volume lib
+      patch:
+        src: ../files/ceph_volume_lvm_patch/ceph_volume_lvm.patch
+        dest: /usr/lib/python2.7/dist-packages/ceph_volume/api/lvm.py
