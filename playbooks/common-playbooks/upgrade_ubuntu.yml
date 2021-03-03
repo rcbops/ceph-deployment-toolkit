@@ -26,6 +26,12 @@
           src: ../files/ceph.pref
           dest: /etc/apt/preferences.d/ceph.pref
 
+      - name: Set grub to continue booting after unclean shutdown
+        lineinfile:
+          path: /etc/default/grubtest
+          regexp: "^GRUB_RECORDFAIL_TIMEOUT"
+          line: "GRUB_RECORDFAIL_TIMEOUT=0"
+
       - name: Upgrade all packages to the latest version
         apt: update_cache=yes upgrade=full
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
