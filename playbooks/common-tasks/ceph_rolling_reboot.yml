@@ -19,6 +19,10 @@
         pre_reboot_delay: 60
         reboot_timeout: 1200
   
+    - name: Pause 3 minutes for ceph reboot to begin
+      pause:
+        minutes: 3
+
     - name: get num_pgs - non container
       command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
       register: ceph_pgs
