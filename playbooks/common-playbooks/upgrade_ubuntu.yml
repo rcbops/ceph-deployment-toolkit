@@ -28,7 +28,7 @@
 
       - name: Set grub to continue booting after unclean shutdown
         lineinfile:
-          path: /etc/default/grubtest
+          path: /etc/default/grub
           regexp: "^GRUB_RECORDFAIL_TIMEOUT"
           line: "GRUB_RECORDFAIL_TIMEOUT=0"
 
