@@ -234,13 +234,13 @@ reboot & exit
 Ensure all nodes can ping deployment node via frontend storage network:
 
 ``` <bash>
-ansible -i ceph_inventory.yaml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
+ansible -i ceph_inventory.yaml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP | grep "packet loss"'
 ```
 
 Ensure all nodes can ping deployment node via backend replication network:
 
 ``` <bash>
-ansible -i ceph_inventory.yaml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
+ansible -i ceph_inventory.yaml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP | grep "packet loss"'
 ```
 
 ### Copy the premade files from the toolkit to ceph-ansible
@@ -272,7 +272,7 @@ Fill in the info in all.yml, osds.yml, and rgws.yml (if deploying rgw). Read the
 ``` <bash>
 cd /opt/ceph-ansible
 cp site.yml.sample site.yml
-ansible-playbook -i ceph_inventory site.yml
+ansible-playbook -i ceph_inventory.yaml site.yml
 ```
 
 ### Set tunables and enable the balancer
@@ -292,7 +292,8 @@ Record what the username and password are for the dashboard in a Runbook
 ``` <bash>
 ceph mgr module enable dashboard
 ceph dashboard create-self-signed-cert
-ceph dashboard set-login-credentials <username> <password>
+echo "<customer_password>" > /etc/ceph/ceph-customer-password
+ceph dashboard ac-user-create <customer_username> -i /etc/ceph/ceph-customer-password
 ceph mgr module disable dashboard
 ceph mgr module enable dashboard
 ```
@@ -303,4 +304,8 @@ Check that the dashboard is enabled
 ceph mgr services
 ```
 
-Navigate to the dashboard and log in with the username/password you recorded from before
+Navigate to the dashboard and log in with the username/password you recorded from before  
+  
+Once logged into the dashboard, click on Dashoard Settings in the top right and then click on User management
+Click on the `<customer_username>` and then click on the pencil to the right of Roles
+Select read-only and click Edit User
