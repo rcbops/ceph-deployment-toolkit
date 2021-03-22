@@ -304,6 +304,12 @@ Check that the dashboard is enabled
 ceph mgr services
 ```
 
+Delete the ceph-customer-password file
+
+```<bash>
+rm /etc/ceph/ceph-customer-password
+```
+  
 Navigate to the dashboard and log in with the username/password you recorded from before  
   
 Once logged into the dashboard, click on Dashoard Settings in the top right and then click on User management
