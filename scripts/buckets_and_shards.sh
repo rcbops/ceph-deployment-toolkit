@@ -27,26 +27,32 @@ else
 fi
 
 for BUCKET in $BUCKET_LIST; do
-    for INSTANCE in $(${RADOSGW_ADMIN} metadata get bucket:$BUCKET| awk -F'"' '/bucket_id/{print $4}'); do
-        echo "${BUCKET}"
+    BUCKET_ID=$(${RADOSGW_ADMIN} metadata get bucket:$BUCKET 2>/dev/null| awk -F'"' '/bucket_id/{print $4}')
+    if [ -z "${BUCKET_ID}" ]
+    then
+      echo "Bucket [${BUCKET}] not found"
+      echo
+      continue
+    fi
+    echo "${BUCKET}"
 
-        OBJECTS=$(${RADOSGW_ADMIN} bucket stats --bucket=$BUCKET | jq '.usage."rgw.main".num_objects')
-        if [ ${OBJECTS} = 'null' ]
-        then
-            OBJECTS=0
-        fi
-        echo "Objects: ${OBJECTS}"
+    OBJECTS=$(${RADOSGW_ADMIN} bucket stats --bucket=$BUCKET | jq '.usage."rgw.main".num_objects')
+    if [ ${OBJECTS} = 'null' ]
+    then
+        OBJECTS=0
+    fi
+    echo "Objects: ${OBJECTS}"
 
-        SHARDS=$(${RADOSGW_ADMIN} metadata get bucket.instance:$BUCKET:$INSTANCE |jq '.data.bucket_info.num_shards')
-        echo "Shards: ${SHARDS}"
+    SHARDS=$(${RADOSGW_ADMIN} metadata get bucket.instance:$BUCKET:$BUCKET_ID |jq '.data.bucket_info.num_shards')
+    echo "Shards: ${SHARDS}"
 
-        if [ ${SHARDS} -eq 0 ]
-        then
-            OBJ_PER_SHARD=${OBJECTS}
-        else
-            OBJ_PER_SHARD=$(( ${OBJECTS}/${SHARDS} ))
-        fi
-                echo "Objects per Shard: ${OBJ_PER_SHARD}"
-        done
+    if [ ${SHARDS} -eq 0 ]
+    then
+        OBJ_PER_SHARD=${OBJECTS}
+    else
+        OBJ_PER_SHARD=$(( ${OBJECTS}/${SHARDS} ))
+    fi
+
+    echo "Objects per Shard: ${OBJ_PER_SHARD}"
     echo
 done
