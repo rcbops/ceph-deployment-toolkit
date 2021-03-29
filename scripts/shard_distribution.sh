@@ -65,7 +65,7 @@ for BUCKET in $BUCKET_LIST; do
     done
 
     TOTAL_SHARDS=$( echo "${ALL_SHARDS}" |tr [:space:] '\n' | awk '{sum+=$1}END{print sum}' )
-    stdDev=$( echo "${ALL_SHARDS}" |tr [:space:] '\n' | awk '{sum+=$1; sumsq+=$1*$1}END{print sqrt(sumsq/NR - (sum/NR)**2)}' )
+    stdDev=$( echo "${ALL_SHARDS}" |tr [:space:] '\n' | awk '{sum+=$1; sumsq+=$1*$1}END{print sqrt(sumsq/NR - (sum/NR)*(sum/NR))}' )
     echo "Total PGs: ${TOTAL_PGS}"
     echo "Used PGs: ${USED_PGS}"
     echo "Total Shards: ${TOTAL_SHARDS}"
