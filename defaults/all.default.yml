@@ -213,6 +213,7 @@ ceph_conf_overrides:
      "max_open_files": "26234859"
      "osd_pool_default_pg_num": "128"
      "osd_pool_default_pgp_num": "128"
+     "osd_deep_scrub_interval": "1209600"
      "mon_osd_down_out_interval": "900"
      "mon_pg_warn_max_object_skew": "0"
      "objecter_inflight_op_bytes": 524288000
@@ -232,7 +233,6 @@ ceph_conf_overrides:
      "osd_scrub_chunk_max": "5"
      "osd_scrub_load_threshold": "10.0"
      "osd_scrub_min_interval": "129600"
-     "osd_deep_scrub_interval": "1209600"
    "client":
      "rgw cache lru size": "250000"
      "rgw thread pool size": "8192"
