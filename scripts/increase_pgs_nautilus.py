@@ -29,8 +29,8 @@ def get_pool_pgs( pool ):
 
 def set_pool_pgs( pool, pgs ):
   print("Setting pool " + pool + str(pgs))
-  #subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pgs)])
-  #subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pgs)])
+  subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pgs)])
+  subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pgs)])
 
 
 # get the current number of pgs in the target pool
