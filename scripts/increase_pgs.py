@@ -28,6 +28,7 @@ def get_pool_pgs( pool ):
   return pool_pgs
 
 def set_pool_pgs( pool, pgs ):
+  print("Setting pool " + pool + " to " + str(pgs) + " pgs")
   subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pgs)])
   subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pgs)])
 
@@ -40,7 +41,8 @@ sys.stdout.flush()
 while pool_pgs < max_pgs:
   # get the health from the cluster
   health = json.loads( subprocess.check_output(["ceph", "health", "-f", "json"]) )
-  
+  status = json.loads( subprocess.check_output(["ceph", "status", "-f", "json"]) )
+
   # check if overall health is not ERR
   if 'ERR' in health['status']:
     print("Exiting! Cluster is in HEALTH_ERR!")
@@ -58,10 +60,12 @@ while pool_pgs < max_pgs:
     new_pgs = max_pgs
 
   # if there are objects misplaced, wait until they're below the threshold
-  if 'OBJECT_MISPLACED' in health['checks']:
-    #print( json.dumps(health['checks']['OBJECT_MISPLACED']['summary']['message']) )
-    m = re.search( '\((.*)%\)', health['checks']['OBJECT_MISPLACED']['summary']['message'] )
-    misplaced = float( m.group(1) )
+  if 'misplaced_total' in status['pgmap'].keys():
+    misplaced_total = int( status['pgmap']['misplaced_total'] )
+  else:
+    misplaced_total = 0
+  if misplaced_total > 0:
+    misplaced = float( status['pgmap']['misplaced_ratio'] ) * 100
     print("MISPLACED: " + str(misplaced))
     sys.stdout.flush()
 
