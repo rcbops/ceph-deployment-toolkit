@@ -28,7 +28,7 @@ def get_pool_pgs( pool ):
   return pool_pgs
 
 def set_pool_pgs( pool, pgs ):
-  print("Setting pool " + pool + str(pgs))
+  print("Setting pool " + pool + " to " str(pgs) + " pgs")
   subprocess.call(["ceph", "osd", "pool", "set", pool, "pg_num", str(pgs)])
   subprocess.call(["ceph", "osd", "pool", "set", pool, "pgp_num", str(pgs)])
 
