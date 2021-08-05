@@ -14,6 +14,8 @@ def get_insecure_clients():
     for detail in insecure_health_detail:
       message = detail['message']
       m = re.search('.*\s+at\s+v1:(\S+).*?$', message);
+      if m is None:
+        continue
       client = m.group(1)
       insecure_clients[client] = ""
     return insecure_clients
