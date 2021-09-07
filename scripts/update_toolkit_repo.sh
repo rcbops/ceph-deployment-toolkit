@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # install git
-apt install -y git
+if [ ! -f /etc/redhat-release ]
+then
+    apt install -y git
+else
+    yum install -y git
+fi
 
 # check which toolkit is installed
 INSTALLED=$(cd /opt/ceph-toolkit; git remote -v  |grep fetch |awk '{print $2}' |sed -e 's/\.git//')
@@ -24,22 +29,25 @@ https://github.com/rcbops/ceph-deployment-toolkit*)
     ;;
 esac
 
-# set the correct cephrc
-CEPH_MAJOR_VERSION=$(ceph -v |awk '{print $3}' |awk -F. '{print $1}')
-case $CEPH_MAJOR_VERSION in
-12)
-    cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
-    ;;
-13)
-    cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
-    ;;
-14)
-    cp /opt/ceph-toolkit/cephrc_nautilus /opt/ceph-toolkit/cephrc
-    ;;
-esac
-
-# update venvs and ceph-ansible
-cd /opt/ceph-toolkit
-bash /opt/ceph-toolkit/scripts/prepare-deployment.sh
-
-ln -sf /opt/ceph-toolkit/ceph_deploy /opt/ceph-ansible/venv
+if [ ! -f /etc/redhat-release ]
+then
+    # set the correct cephrc
+    CEPH_MAJOR_VERSION=$(ceph -v |awk '{print $3}' |awk -F. '{print $1}')
+    case $CEPH_MAJOR_VERSION in
+    12)
+        cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
+        ;;
+    13)
+        cp /opt/ceph-toolkit/cephrc_mimic /opt/ceph-toolkit/cephrc
+        ;;
+    14)
+        cp /opt/ceph-toolkit/cephrc_nautilus /opt/ceph-toolkit/cephrc
+        ;;
+    esac
+    
+    # update venvs and ceph-ansible
+    cd /opt/ceph-toolkit
+    bash /opt/ceph-toolkit/scripts/prepare-deployment.sh
+    
+    ln -sf /opt/ceph-toolkit/ceph_deploy /opt/ceph-ansible/venv
+fi
