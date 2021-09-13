@@ -205,8 +205,6 @@ all:
     grafana-server:
       hosts:
         Bulbasaur:
-        Squirtle:
-        Charmander:
         
 ```
 
