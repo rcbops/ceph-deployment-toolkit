@@ -17,17 +17,24 @@
           state: present
 
       - name: Update ceph repo to Pacific
-        ansible.builtin.shell: cephadm add-repo --release pacific
+        shell: "cephadm add-repo --release pacific"
 
-      - name: Add ceph apt signing key
-        ansible.builtin.apt_key:
+      - name: Update ceph repo to Pacific
+        shell: "rm /etc/apt/trusted.gpg.d/ceph.release.gpg"
+
+      - name: Download ceph apt signing key
+        get_url:
           url: https://download.ceph.com/keys/release.asc
-          state: present
+          dest: /tmp/release.asc
+
+      - name: Install ceph apt signing key
+        shell: "apt-key add /tmp/release.asc"
 
       - name: Update cephadm to Pacific
         apt:
           name: cephadm
-          state: present
+          state: latest
           update_cache: yes
+          force: yes
 
-      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '20.04'
