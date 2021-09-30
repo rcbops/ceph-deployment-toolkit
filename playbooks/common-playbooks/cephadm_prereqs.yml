@@ -1,0 +1,33 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: yes
+  name: Upgrade software
+  tasks:
+    # Use a block to perform tasks conditionally—only if running Ubuntu 20.04.
+    - block:
+      - name: Install cephadm (defaults to Octopus)
+        apt:
+          name: cephadm
+          state: present
+
+      - name: Install gnupg
+        apt:
+          name: gnupg
+          state: present
+
+      - name: Update ceph repo to Pacific
+        ansible.builtin.shell: cephadm add-repo --release pacific
+
+      - name: Add ceph apt signing key
+        ansible.builtin.apt_key:
+          url: https://download.ceph.com/keys/release.asc
+          state: present
+
+      - name: Update cephadm to Pacific
+        apt:
+          name: cephadm
+          state: present
+          update_cache: yes
+
+      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '16.04'
