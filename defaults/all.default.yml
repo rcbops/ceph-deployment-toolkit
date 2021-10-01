@@ -224,7 +224,7 @@ ceph_conf_overrides:
      "mon_warn_pg_not_scrubbed_ratio": 0
    "osd":
      "osd_heartbeat_min_size": "9000"
-     "osd_snap_trip_priority": "1"
+     "osd_snap_trim_priority": "1"
      "osd_snap_trim_sleep": "0.1"
      "osd_pg_max_concurrent_snap_trims": "1"
      "osd_scrub_sleep": "0.1"
