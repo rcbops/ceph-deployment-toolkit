@@ -15,7 +15,7 @@ ceph_conf_overrides:
     "rgw cache lru size": "250000"
     "rgw thread pool size": "8192"
     "rgw num rados handles": "8192"
-  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
     "rgw keystone api version": "3"
     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
     "rgw keystone admin user": "swift"
@@ -28,4 +28,4 @@ ceph_conf_overrides:
     "rgw s3 auth use keystone": "true"
     "rgw swift account in url": "true"
     "rgw keystone implicit tenants": "true" 
-    "nss db path": "/var/lib/ceph/radosgw/ceph-radosgw.{{ ansible_hostname }}/nss"
+    "nss db path": "/var/lib/ceph/radosgw/ceph-radosgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}/nss"

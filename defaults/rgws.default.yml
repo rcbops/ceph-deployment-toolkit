@@ -20,7 +20,7 @@ radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }}"
 #    "rgw cache lru size": "250000"
 #    "rgw thread pool size": "8192"
 #    "rgw num rados handles": "8"
-#  "client.rgw.{{ hostvars[inventory_hostname]['ansible_hostname'] }}":
+#  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
 #    "rgw keystone api version": "3"
 #    "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
 #    "rgw keystone admin user": "swift"
