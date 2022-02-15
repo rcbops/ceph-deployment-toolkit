@@ -48,7 +48,7 @@ ceph_origin: repository
 ceph_repository: community
 ceph_mirror: http://download.ceph.com
 ceph_stable_key: https://download.ceph.com/keys/release.asc
-ceph_stable_release: nautilus
+ceph_stable_release: octopus
 ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
 
 # Pull NFS-Ganesha 2.7 if using CephfS (Uncomment only if using CephFS)
@@ -65,14 +65,6 @@ cluster_network: BACKEND-NETWORK-CIDR
 
 # osd backend to use. This will be bluestore until further notice
 osd_objectstore: bluestore
-
-
-# RadosGW configuration (only setup if setting up RGW)
-
-# radosgw_frontend_type: beast # For additionnal frontends see: http://docs.ceph.com/docs/mimic/radosgw/frontends/
-#radosgw_civetweb_port: 8080
-#radosgw_civetweb_num_threads: 100
-#radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }}"
 
 
 
@@ -114,7 +106,7 @@ openstack_cinder_pool:
   application: "rbd"
   size: "{{ osd_pool_default_size }}"
   min_size: "{{ osd_pool_default_min_size }}"
-  target_size_ratio: 5.0
+  target_size_ratio: 1.0
 openstack_nova_pool:
   name: "vms"
   rule_name: "replicated_rule"
@@ -248,19 +240,20 @@ ceph_conf_overrides:
      "rbd_cache_size": 67108864
      "rbd_cache_target_dirty": 33554432
      "rbd_cache_writethrough_until_flush": "False"
-   "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0":
-     "rgw keystone api version": "3"
-     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
-     "rgw keystone admin user": "swift"
-     "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
-     "rgw keystone admin tenant": "service"
-     "rgw keystone admin domain": "default"
-     "rgw keystone accepted roles": "Member, _member_, admin, swift_operator"
-     "rgw keystone token cache size": "10000"
-     "rgw keystone revocation interval": "900"
-     "rgw s3 auth use keystone": "true"
-     "rgw swift account in url": "true"
-     "rgw keystone implicit tenants": "true" 
+## UNCOMMENT FOR RGW
+#   "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
+#     "rgw keystone api version": "3"
+#     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
+#     "rgw keystone admin user": "swift"
+#     "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
+#     "rgw keystone admin tenant": "service"
+#     "rgw keystone admin domain": "default"
+#     "rgw keystone accepted roles": "Member, _member_, admin"
+#     "rgw keystone token cache size:": "10000"
+#     "rgw keystone revocation interval": "900"
+#     "rgw s3 auth use keystone": "true"
+#     "rgw swift account in url": "true"
+#     "rgw keystone implicit tenants": "true"
 
 disable_transparent_hugepage: true
 os_tuning_params:

@@ -19,11 +19,15 @@
 
 osd_scenario: lvm
 
+# OSD devices
 devices:
   - list
   - your
   - drives
   - here
 
-
+# SSD journal devices (if non-colocated)
+dedicated_devices:
+  - journal drives
+  - here
 

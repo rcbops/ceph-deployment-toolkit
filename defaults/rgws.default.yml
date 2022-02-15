@@ -7,29 +7,13 @@
 # Fill in the Management Netowrk, Internal VIP endpoint for keystone, and the swift password from openstack
 
 
-radosgw_address_block: <MGMT_NETWORK_CIDR>
-radosgw_civetweb_port: 8080
-radosgw_civetweb_num_threads: 512
-radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }}"
+# default to listen on all interfaces, for specific network use radosgw_address_block and comment radosgw_address
+radosgw_frontend_type: beast
+#radosgw_address_block: <MGMT_NETWORK_CIDR>
+radosgw_address: 0.0.0.0
+radosgw_frontend_port: 8080
+radosgw_thread_pool_size: 512
+
 
 # If building Ceph with SSL, remove the radosgw_civeweb_options above and replace with the below.
 #radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }} ssl_certificate=/etc/ceph/ssl_combined.pem"
-
-#ceph_conf_overrides:
-#  "client":
-#    "rgw cache lru size": "250000"
-#    "rgw thread pool size": "8192"
-#    "rgw num rados handles": "8"
-#  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
-#    "rgw keystone api version": "3"
-#    "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
-#    "rgw keystone admin user": "swift"
-#    "rgw keystone admin password": "<PASSWORD FROM OPENSTACK>"
-#    "rgw keystone admin tenant": "service"
-#    "rgw keystone admin domain": "default"
-#    "rgw keystone accepted roles": "Member, _member_, admin"
-#    "rgw keystone token cache size:": "10000"
-#    "rgw keystone revocation interval": "900"
-#    "rgw s3 auth use keystone": "true"
-#    "rgw swift account in url": "true"
-#    "rgw keystone implicit tenants": "true" 
