@@ -267,16 +267,8 @@ ceph balancer mode upmap
 ceph osd crush tunables optimal
 ceph balancer on
 ```
+
 ### Enable the Ceph Dashboard
-
-Record what the username and password are for the dashboard in a Runbook
-
-```
-ceph dashboard create-self-signed-cert
-ceph dashboard set-login-credentials <username> <password>
-ceph mgr module disable dashboard
-ceph mgr module enable dashboard
-```
 
 Check that the dashboard is enabled
 ```
@@ -291,6 +283,8 @@ Navigate to the dashboard and log in with the username/password you recorded fro
 cd /opt/ceph-toolkit
 ansible-playbook -i /opt/ceph-ansible/ceph_inventory ./playbooks/common-playbooks/cpu_tuning.yml
 ```
+
+### If RadosGW (swift/S3) services are required, reference rados_gateway_install.md
 
 
 __Glossary__
