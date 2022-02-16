@@ -262,7 +262,7 @@ ansible-playbook -i ceph_inventory site.yml
 ### Set tunables and enable the balancer
 
 ```
-ceph osd set-require-min-compat-client luminous
+ceph osd set-require-min-compat-client octopus
 ceph balancer mode upmap
 ceph osd crush tunables optimal
 ceph balancer on
