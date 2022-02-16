@@ -22,10 +22,11 @@ vim ceph_inventory
 Example:
 
 ```
-[rgws]
-Articuno
-Zapdos
-Moltres
+    rgws:
+      hosts:
+        ceph01:
+        ceph02:
+        ceph03:
 ```
 #### Copy the default rgw file from ceph-toolkit and into ceph-ansible. 
 
@@ -38,6 +39,9 @@ You will need the following to fill in the document
 ```
 cp /opt/ceph-toolkit/defaults/rgws.default/yml /opt/ceph-ansible/group_vars/rgws.yml
 vim /opt/ceph-ansible/group_vars/rgws.yml
+  ( this only needs updated if limiting RGW to a specific network )
+vim /opt/ceph-ansible/group_vars/all.yml
+  ( uncomment section starting "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0" and fill in details noted above )
 ```
 
 #### Run site.yml
@@ -54,7 +58,7 @@ You will need to run this command from the Rados Gateway nodes
 
 
 ```
-ceph daemon /var/run/ceph/ceph-client.rgw.$(hostname).*asok config show | grep keystone
+ceph daemon /var/run/ceph/ceph-client.rgw.$(hostname).rgw0.*asok config show | grep keystone
 ```
 
 Confirm that the **User**,**password**, and **keystone endpoint** are correct.

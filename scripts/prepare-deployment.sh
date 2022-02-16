@@ -33,6 +33,7 @@ pip install --upgrade 'setuptools<45.0.0'
 pip install ansible==$ANSIBLE_VERSION
 pip install notario
 pip install netaddr
+pip install six
 
 
 if [ ! -d ${CEPH_ANSIBLE_DIR} ]

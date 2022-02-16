@@ -32,12 +32,13 @@ cat ~/.ssh/id_rsa.pub
 ```
 #### Add the key to all ceph servers. Also, check for python and install if needed
 
-``` 
+```
 ssh-copyid  <hostname>
 ssh <hostname> apt install python3
 ```
 
 #### Clone the ceph-toolkit repo onto the deployment host
+
 
 ``` 
 git clone <url of the repo> /opt/ceph-toolkit
@@ -50,36 +51,6 @@ cd /opt/ceph-toolkit
 bash scripts/prepare-deployment.sh
 ```
 
-### Create inventory for the pre-deployment automation 
-#### Servers that will require colocated partitioning need to be in a colocated group
-#### Servers that will require non-colocated partitioning need to be in a noncolocated group
-
-If you don't know what colocated or noncolocated is, see the glossary at the end of this doc.
-
-```
-vim /opt/ceph-toolkit/env_inventory
-```
-Example
-
-```
-[nodes]
-Bulbasaur
-Squirtle
-Charmander
-Pikachu
-Eevee
-
-[colocated]
-Bulbasaur
-Squirtle
-Charmander
-
-[noncolocated]
-Pikachu
-Eevee
-
-
-```
 
 ### Setup Networking on all the ceph servers
 
@@ -197,6 +168,12 @@ iface br-repl inet static
 Reboot each node so that the network configs take.
 
 ### Verify Networking
+Activate ansible virtual environment
+```
+cd /opt/ceph-ansible
+ln -s /opt/ceph-toolkit/ceph_deploy venv
+source venv/bin/activate
+```
 Ensure all nodes can ping deployment node via frontend storage network:
 ```
 ansible -i env_inventory all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
@@ -210,189 +187,57 @@ If these commands hang, double check that the switches are properly configured f
 
 (consider verifying network throughput as well. iperf?)
 
-### Prepare the drives.yml file for the type of environment you are deploying.
-
-If you have a fast tier and slow tier of osd nodes, then it is recommended that you create a drives.yml file for each type of osd node and then use that file when running the corresponding partitioning playbook. 
- 
-
-* 4% of a single OSD drive size = db_size
-
-* 2GB = wal_size
-
-If you have all SSD drives, your drives.yml should be set up like this ...
-
-```
----
-wal_size: "2G"
-db_size: "200G" # 30GB or 4% of a single osd drive size, whichever is larger
-
-drives:
-  ssd:
-    sdb:
-      name: ceph-data01
-      db_lv: ceph-db01
-      wal_lv: ceph-wal01
-    sdc:
-      name: ceph-data02
-      db_lv: ceph-db02
-      wal_lv: ceph-wal02
-    sdd:
-      name: ceph-data03
-      db_lv: ceph-db03
-      wal_lv: ceph-wal03
-    sde:
-      name: ceph-data04
-      db_lv: ceph-db04
-      wal_lv: ceph-wal04
-    sdf:
-      name: ceph-data05
-      db_lv: ceph-db05
-      wal_lv: ceph-wal05
-    sdg:
-      name: ceph-data06
-      db_lv: ceph-db06
-      wal_lv: ceph-wal06
-
-```
-
-If you have SSD Journals and HDD OSDs, your drives.yml should be set up like this ...
-
-```
----
-wal_size: "2G"
-db_size: "200G" #  30GB or 4% of a single osd drive size, whichever is larger
-
-drives:
-  ssd:
-    sdb:
-      vg: ceph-ssd01
-    sdc:
-      vg: ceph-ssd02
-  hdd:
-    sde:
-      name: ceph-data01
-      db_lv: ceph-db01
-      db_vg: ceph-ssd01
-      wal_lv: ceph-wal01
-      wal_vg: ceph-ssd01
-    sdf:
-      name: ceph-data02
-      db_lv: ceph-db02
-      db_vg: ceph-ssd01
-      wal_lv: ceph-wal02
-      wal_vg: ceph-ssd01
-    sdg:
-      name: ceph-data03
-      db_lv: ceph-db03
-      db_vg: ceph-ssd01
-      wal_lv: ceph-wal03
-      wal_vg: ceph-ssd01
-    sdi:
-      name: ceph-data04
-      db_lv: ceph-db04
-      db_vg: ceph-ssd02
-      wal_lv: ceph-wal04
-      wal_vg: ceph-ssd02
-    sdj:
-      name: ceph-data05
-      db_lv: ceph-db05
-      db_vg: ceph-ssd02
-      wal_lv: ceph-wal05
-      wal_vg: ceph-ssd02
-    sdk:
-      name: ceph-data06
-      db_lv: ceph-db06
-      db_vg: ceph-ssd02
-      wal_lv: ceph-wal06
-      wal_vg: ceph-ssd02
-    sdd:
-      name: ceph-data07
-      db_lv: ceph-db07
-      db_vg: ceph-ssd01
-      wal_lv: ceph-wal07
-      wal_vg: ceph-ssd01
-    sdh:
-      name: ceph-data08
-      db_lv: ceph-db08
-      db_vg: ceph-ssd02
-      wal_lv: ceph-wal08
-      wal_vg: ceph-ssd02
-
-```
-
-There are examples of both scenarios inside ./playbooks/vars/
-Note that each HDD will use two LVs on the SSDs (one each for WAL and DB).  Verify that each SSD is large enough for all of the LVs to be created on it.
-If necessary, the wal_size and/or db_size may need to be reduced, but consult with the storage team if this is necessary.
-
-
-### Run the partioning playbook for the type of environment you are trying to deploy. If you have both types, you need to run both.
-
-For colocated, run
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/colocated-partitioning.yml
-```
-
-For non-colocated, run
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory -e @./drives.yml ./playbooks/common-playbooks/non-colocated-partitioning.yml
-```
-
-### Set the performance scaling governor and disable cpu idle states
-
-```
-cd /opt/ceph-toolkit
-ansible-playbook -i env_inventory ./playbooks/common-playbooks/cpu_tuning.yml
-```
 
 ## Start Ceph deployment
 
 ### Go into ceph-ansible and create inventory file
 
-``` 
-cd /opt/ceph-ansible
-source /opt/ceph-toolkit/ceph_deploy/bin/activate
-vim ceph_inventory
+```
+ln -s ceph_inventory.yml ceph_inventory
+vim ceph_inventory.yml
 ```
 
 Your inventory file should look like this
 
 ```
-[mons]  # required
-Bulbasaur
-Squirtle
-Charmander
-
-[mgrs]  # required
-Bulbasaur
-Squirtle
-Charmander
-
-[osds]  # required
-Bulbasaur
-Squirtle
-Charmander
-Pikachu
-Eevee
-
-[mdss]  # only if customer is getting CephFS + Manila
-Bulbasaur
-Squirtle
-Charmander
-
-[nfss]  # only if customer is getting CephFS + Manila
-Bulbasaur
-Squirtle
-Charmander
-
-[rgws]  # only if customer is getting object storage with RGW
-Bulbasaur
-Squirtle
-Charmander
-
+---
+all:
+  children:
+    mons:   # required
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
+    mgrs:   # required
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
+    osds:   # required
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
+        Pikachu:
+        Eevee:
+    grafana-server:   #required
+      hosts:
+        Bulbasaur:
+    rgws:  # only if customer is getting object storage with RGW
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
+    mdss:  # only if customer is getting CephFS + Manila
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
+    nfss:  # only if customer is getting CephFS + Manila
+      hosts:
+        Bulbasaur:
+        Squirtle:
+        Charmander:
 ```
 
 ### Copy the premade files from the toolkit to ceph-ansible
@@ -406,43 +251,45 @@ cp /opt/ceph-toolkit/defaults/nfss.default.yml /opt/ceph-ansible/group_vars/nfss
 cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
 ```
 
-### Fill in the info in all.yml and osds.yml. Read the instructions in each file.
+### Fill in the info in all.yml, osds.yml and rgws.yml. Read the instructions in each file.
+
 
 
 ### Run site.yml to deploy Ceph
 
 ```
 cd /opt/ceph-ansible
-cp site.yml.sample site.yml
+ln -sf site.yml.sample site.yml
 ansible-playbook -i ceph_inventory site.yml
 ```
 
-### Set tunables and enable the balancer 
+### Set tunables and enable the balancer
 
 ```
-ceph osd set-require-min-compat-client luminous
-ceph mgr module enable balancer 
+ceph osd set-require-min-compat-client octopus
 ceph balancer mode upmap
-ceph osd crush tunables optimal 
+ceph osd crush tunables optimal
 ceph balancer on
 ```
+
 ### Enable the Ceph Dashboard
-
-Record what the username and password are for the dashboard in a Runbook
-
-```
-ceph mgr module enable dashboard
-ceph dashboard create-self-signed-cert
-ceph dashboard set-login-credentials <username> <password>
-ceph mgr module disable dashboard
-ceph mgr module enable dashboard
-```
 
 Check that the dashboard is enabled
 ```
 ceph mgr services
 ```
 Navigate to the dashboard and log in with the username/password you recorded from before
+
+
+### Set the performance scaling governor and disable cpu idle states
+
+```
+cd /opt/ceph-toolkit
+ansible-playbook -i /opt/ceph-ansible/ceph_inventory ./playbooks/common-playbooks/cpu_tuning.yml
+```
+
+### If RadosGW (swift/S3) services are required, reference rados_gateway_install.md
+
 
 
 __Glossary__
