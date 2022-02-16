@@ -43,6 +43,12 @@ then
     14)
         cp /opt/ceph-toolkit/cephrc_nautilus /opt/ceph-toolkit/cephrc
         ;;
+    15)
+        cp /opt/ceph-toolkit/cephrc_octopus /opt/ceph-toolkit/cephrc
+        ;;
+    14)
+        cp /opt/ceph-toolkit/cephrc_pacific /opt/ceph-toolkit/cephrc
+        ;;
     esac
     
     # update venvs and ceph-ansible
