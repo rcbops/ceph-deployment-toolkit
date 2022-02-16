@@ -39,7 +39,8 @@ ssh <hostname> apt install python3
 
 #### Clone the ceph-toolkit repo onto the deployment host
 
-```
+
+``` 
 git clone <url of the repo> /opt/ceph-toolkit
 ```
 
@@ -49,6 +50,7 @@ git clone <url of the repo> /opt/ceph-toolkit
 cd /opt/ceph-toolkit
 bash scripts/prepare-deployment.sh
 ```
+
 
 ### Setup Networking on all the ceph servers
 
@@ -185,6 +187,7 @@ If these commands hang, double check that the switches are properly configured f
 
 (consider verifying network throughput as well. iperf?)
 
+
 ## Start Ceph deployment
 
 ### Go into ceph-ansible and create inventory file
@@ -251,6 +254,7 @@ cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws
 ### Fill in the info in all.yml, osds.yml and rgws.yml. Read the instructions in each file.
 
 
+
 ### Run site.yml to deploy Ceph
 
 ```
@@ -287,6 +291,7 @@ ansible-playbook -i /opt/ceph-ansible/ceph_inventory ./playbooks/common-playbook
 ### If RadosGW (swift/S3) services are required, reference rados_gateway_install.md
 
 
+
 __Glossary__
 
 Colocated - Occurs when every single drive in a ceph cluster is a SSD. The wal and db partitions will share the SSD with the data partition
@@ -305,5 +310,6 @@ RGW - Rados Gateway. Ceph's Object Storage.
 
 
 MDS - Ceph Metadata Server. Used for CephFS.
+
 
 
