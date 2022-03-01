@@ -4,7 +4,7 @@ UDEV_RULE_FILE="/etc/udev/rules.d/60-ssd-nonrotational.rules"
 echo "" > /etc/udev/rules.d/60-ssd-nonrotational.rules
 VENDOR="$(dmidecode |grep Vendor |awk '{print $2}')"
 omreport="/opt/dell/srvadmin/bin/omreport"
-ssaccli="/usr/sbin/ssacli"
+ssacli="/usr/sbin/ssacli"
 
 function udev_apply {
     echo "Created ${UDEV_RULE_FILE}"
