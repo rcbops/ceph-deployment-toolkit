@@ -1,4 +1,7 @@
-# Ceph Install for Ubuntu 18.04+
+# Deprecated, please use ceph-install-20_04.md
+
+
+## Ceph Install for Ubuntu 18.04+
 
 It is assumed that all nodes have Ubuntu (18.04+) installed, and servers are accessible via ssh from the deployment node.
 
