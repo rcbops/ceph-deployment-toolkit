@@ -18,6 +18,10 @@ echo " ###################################"
 echo " # CREATING ceph_deploy VIRTUALENV #"
 echo " ###################################"
 
+apt install -y python
+wget -O /tmp/get-pip.py
+python /tmp/get-pip.py
+pip install virtualenv
 virtualenv ceph_deploy
 source ceph_deploy/bin/activate
 
