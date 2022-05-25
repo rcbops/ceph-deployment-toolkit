@@ -19,7 +19,7 @@ echo " # CREATING ceph_deploy VIRTUALENV #"
 echo " ###################################"
 
 apt install -y python
-wget -O /tmp/get-pip.py
+wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py
 python /tmp/get-pip.py
 pip install virtualenv
 virtualenv ceph_deploy
