@@ -19,10 +19,6 @@
         pre_reboot_delay: 60
         reboot_timeout: 1200
   
-    - name: Pause 3 minutes for ceph reboot to begin
-      pause:
-        minutes: 3
-
     - name: get num_pgs - non container
       command: "{{ docker_exec_cmd_update_osd|default('') }} ceph --cluster {{ cluster }} -s --format json"
       register: ceph_pgs
@@ -49,4 +45,11 @@
       delegate_to: "{{ groups[mon_group_name][0] }}"
       retries: "{{ health_osd_check_retries }}"
       delay: "{{ health_osd_check_delay }}"
+
+    - name: set osd flags
+      command: ceph --cluster {{ cluster }} osd unset {{ item }}
+      with_items:
+        - noout
+      delegate_to: "{{ groups[mon_group_name][0] }}"
+  
   when: reboot_required.stat.exists == True

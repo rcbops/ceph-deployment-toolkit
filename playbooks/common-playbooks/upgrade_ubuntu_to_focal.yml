@@ -1,11 +1,21 @@
 ---
 - hosts: all
+  serial: 1
   gather_facts: yes
   become: yes
-  name: Upgrade software
+  name: Upgrade Ubuntu to 20.04
+  vars:
+    health_osd_check_retries: 40
+    health_osd_check_delay: 30
+    mon_group_name: "mons"
+    cluster: "ceph"
+    reboot_required_path: "/var/run/reboot-required"
   tasks:
     # Use a block to perform tasks conditionally—only if running Ubuntu 18.04.
     - block:
+
+      - assert:
+          that: ansible_version.full >= "2.8.0"
 
       - debug:
           msg: 'This server is running Ubuntu 18.04 LTS and all packages will be upgraded.'
@@ -32,23 +42,17 @@
           regexp: "^GRUB_RECORDFAIL_TIMEOUT"
           line: "GRUB_RECORDFAIL_TIMEOUT=0"
 
-      - name: Upgrade all packages to the latest version
+      - name: Apt upgrade all packages to the latest version
         apt: update_cache=yes upgrade=full
-      when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
-- name: Ceph Rolling Reboot
-  import_playbook: ceph_rolling_reboot.yml
+      - name: Reboot node
+        import_tasks: ../common-tasks/ceph_rolling_reboot.yml
 
-- hosts: all
-  gather_facts: yes
-  become: yes
-  name: Upgrade software
-  tasks:
-    # Use a block to perform tasks conditionally—only if running Ubuntu 18.04.
-    - block:
+      - name: Apt dist upgrade
+        apt: update_cache=no upgrade=dist
 
-      - debug:
-          msg: 'This server is running Ubuntu 18.04 LTS and will be upgraded to LTS.'
+      - name: Reboot node
+        import_tasks: ../common-tasks/ceph_rolling_reboot.yml
 
       - name: Ensure update-manager-core is installed.
         apt: name=update-manager-core state=present
@@ -61,7 +65,24 @@
 
       - name: Run do-release-upgrade non-interactively.
         command: do-release-upgrade -m server -f DistUpgradeViewNonInteractive
+
+      - name: Reboot node
+        import_tasks: ../common-tasks/ceph_rolling_reboot.yml
+
       when: ansible_distribution == 'Ubuntu' and ansible_distribution_version == '18.04'
 
-- name: Ceph Rolling Reboot
-  import_playbook: ceph_rolling_reboot.yml
+    - name: Update node facts
+      setup:
+
+    - name: Node upgrade status
+      debug:
+        msg:
+        - "OS release: {{ ansible_lsb['release'] }}"
+        - "Kernel: {{ ansible_kernel }}"
+        - "Uptime: {{ ansible_uptime_seconds }} seconds"
+
+    - name: Pause before upgrading next node
+      pause:
+        prompt: "Hit enter to begin upgrading the next node"
+        echo: yes
+
