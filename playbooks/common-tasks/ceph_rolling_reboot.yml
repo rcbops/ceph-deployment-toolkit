@@ -49,4 +49,11 @@
       delegate_to: "{{ groups[mon_group_name][0] }}"
       retries: "{{ health_osd_check_retries }}"
       delay: "{{ health_osd_check_delay }}"
+
+    - name: set osd flags
+      command: ceph --cluster {{ cluster }} osd unset {{ item }}
+      with_items:
+        - noout
+      delegate_to: "{{ groups[mon_group_name][0] }}"
+  
   when: reboot_required.stat.exists == True
