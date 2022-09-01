@@ -63,8 +63,18 @@
           regexp: "^(Prompt=.+)$"
           replace: "Prompt=lts"
 
-      - name: Run do-release-upgrade non-interactively.
-        command: do-release-upgrade -m server -f DistUpgradeViewNonInteractive
+      - name: Copy upgrade script to target
+        copy:
+          src: ../files/upgrade_ubuntu_to_focal/run_upgrade.sh
+          dest: /var/tmp/run_upgrade.sh
+
+      - name: Upgrade log reminder
+        debug:
+          msg:
+          - 'A log of the upgrade can be found on the node at /var/log/release-upgrade_$( date +%F ).log'
+
+      - name: Run upgrade script with do-release-upgrade non-interactively.
+        command: bash /var/tmp/run_upgrade.sh
 
       - name: Reboot node
         import_tasks: ../common-tasks/ceph_rolling_reboot.yml
