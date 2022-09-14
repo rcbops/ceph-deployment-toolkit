@@ -153,39 +153,18 @@ network:
 
 Reboot each node so that the network configs take.
 
-### Verify Networking
-Activate ansible virtual environment
-```
-cd /opt/ceph-ansible
-ln -s /opt/ceph-toolkit/ceph_deploy venv
-source venv/bin/activate
-```
-Ensure all nodes can ping deployment node via frontend storage network:
-```
-ansible -i env_inventory all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
-```
-Ensure all nodes can ping deployment node via backend replication network:
-```
-ansible -i env_inventory all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
-```
-
-If these commands hang, double check that the switches are properly configured for jumbo frames.
-
-(consider verifying network throughput as well. iperf?)
-
-
 ## Start Ceph deployment
 
 ### Go into ceph-ansible and create inventory file
 
 ```
-ln -s ceph_inventory.yml ceph_inventory
-vim ceph_inventory.yml
+cd /opt/ceph-ansible
 ```
 
 Your inventory file should look like this
 
 ```
+cat << EOT > ceph_inventory.yml
 ---
 all:
   children:
@@ -224,9 +203,32 @@ all:
         Bulbasaur:
         Squirtle:
         Charmander:
+EOT
 ```
 
-### Copy the premade files from the toolkit to ceph-ansible
+
+### Verify Networking
+Activate ansible virtual environment
+```
+cd /opt/ceph-ansible
+ln -s /opt/ceph-toolkit/ceph_deploy venv
+source venv/bin/activate
+```
+Ensure all nodes can ping deployment node via frontend storage network:
+```
+ansible -i ceph_inventory.yml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_STORAGE_IP'
+```
+Ensure all nodes can ping deployment node via backend replication network:
+```
+ansible -i ceph_inventory.yml all -m shell -a 'ping -M do -s 8972 -c 3 DEPLOYMENT_REPL_IP'
+```
+
+If these commands hang, double check that the switches are properly configured for jumbo frames.
+
+(consider verifying network throughput as well. iperf?)
+
+
+### Copy the pre-made files from the toolkit to ceph-ansible
 
 ```
 cp /opt/ceph-toolkit/defaults/all.default.yml /opt/ceph-ansible/group_vars/all.yml
@@ -244,9 +246,11 @@ cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws
 ### Run site.yml to deploy Ceph
 
 ```
+. /opt/ceph-toolkit/ceph_deploy/bin/activate
+
 cd /opt/ceph-ansible
 ln -sf site.yml.sample site.yml
-ansible-playbook -i ceph_inventory site.yml
+ansible-playbook -i ceph_inventory.yml site.yml
 ```
 
 ### Set tunables and enable the balancer
@@ -271,7 +275,7 @@ Navigate to the dashboard and log in with the username/password you recorded fro
 
 ```
 cd /opt/ceph-toolkit
-ansible-playbook -i /opt/ceph-ansible/ceph_inventory ./playbooks/common-playbooks/cpu_tuning.yml
+ansible-playbook -i /opt/ceph-ansible/ceph_inventory.yml ./playbooks/common-playbooks/cpu_tuning.yml
 ```
 
 ### If RadosGW (swift/S3) services are required, reference rados_gateway_install.md
