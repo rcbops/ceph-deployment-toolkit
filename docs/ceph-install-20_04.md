@@ -62,107 +62,93 @@ Network requirements
 * tunnel network is not needed
 
 ```
-auto lo
-iface lo inet loopback
-
-auto em1
-iface em1 inet manual
-     bond-master bond0
-
-auto p4p2
-iface p4p2 inet manual
-     bond-master bond0
-
-auto bond0
-iface bond0 inet static
-    mtu 9000
-    bond-mode 4
-    bond_xmit_hash_policy layer3+4
-    bond-lacp-rate 1
-    bond-miimon 100
-    slaves em1 p4p2
-    address HOST_IP
-    netmask 255.255.252.0
-    gateway 10.240.0.1
-
-auto em4
-iface em4 inet manual
-     bond-master bond1
-
-auto p4p1
-iface p4p1 inet manual
-     bond-master bond1
-
-auto bond1
-iface bond1 inet manual
-     mtu 9000
-     bond-mode 4
-     bond_xmit_hash_policy layer3+4
-     bond-lacp-rate 1
-     bond-miimon 100
-     slaves em4 p4p1
-
-auto em3
-iface em3 inet static
-    address SERVICENET_IP
-    netmask 27
-        post-up ip route add 10.191.192.0/18 via 10.141.35.225 dev em3
-        pre-down ip route del 10.191.192.0/18 via 10.141.35.225 dev em3
-
-# Container management VLAN interface (optional for RGW)
-auto bond0.MGMT_VLAN
-iface bond0.MGMT_VLAN inet manual
-    mtu 1500
-    vlan-raw-device bond0
-
-# Storage network VLAN interface (REQUIRED)
-auto bond0.STORE_VLAN
-iface bond0.STORE_VLAN inet manual
-    mtu 9000
-    vlan-raw-device bond0
-
-# Ceph Replication network (REQUIRED)
-auto bond1.REPL_VLAN
-iface bond1.REPL_VLAN inet manual
-    mtu 9000
-    vlan-raw-device bond1
-
-# Management bridge  (Only needed for RGW)
-auto br-mgmt
-iface br-mgmt inet static
-    mtu 1500
-    bridge_stp off
-    bridge_waitport 0
-    bridge_fd 0
-    # Bridge port references tagged interface
-    bridge_ports bond0.MGMT_VLAN
-    address MGMT_IP
-    netmask 255.255.252.0
-
-# Storage bridge (optional)
-auto br-storage
-iface br-storage inet static
-    mtu 9000
-    bridge_stp off
-    bridge_waitport 0
-    bridge_fd 0
-    # Bridge port reference tagged interface
-    bridge_ports bond0.STORE_VLAN
-    address STORAGE_IP
-    netmask 255.255.252.0
-
-# Ceph Replication bridge (optional)
-auto br-repl
-iface br-repl inet static
-    mtu 9000
-    bridge_stp off
-    bridge_waitport 0
-    bridge_fd 0
-    # Bridge port reference tagged interface
-    bridge_ports bond1.REPL_VLAN
-    address REPL_IP
-    netmask 255.255.252.0
-
+network:
+    version: 2
+    ethernets:
+      em49:
+        mtu: 9000
+      em50:
+        mtu: 9000
+      p4p1:
+        mtu: 9000
+      p4p2:
+        mtu: 9000
+    bonds:
+      bond0:
+        interfaces: [ em49, p4p1 ]
+        parameters:
+          mode: 802.3ad
+          lacp-rate: fast
+          transmit-hash-policy: layer2+3
+          mii-monitor-interval: 100
+        dhcp4: false
+        mtu: 9000
+      bond1:
+        interfaces: [ em50, p4p2 ]
+        parameters:
+          mode: 802.3ad
+          lacp-rate: fast
+          transmit-hash-policy: layer2+3
+          mii-monitor-interval: 100
+        dhcp4: false
+        mtu: 9000
+    bridges:
+      br-bond0:
+        dhcp4: false
+        mtu: 1500
+        interfaces:
+          - bond0
+      br-host:
+        dhcp4: false
+        mtu: 1500
+        interfaces:
+          - vlan1000
+        addresses: [ 10.240.0.51/22 ]
+        nameservers:
+          addresses: [ 1.1.1.1, 1.0.0.1 ]
+        routes:
+          - to: 0.0.0.0/0
+            via: 10.240.0.1
+            metric: 500
+      br-mgmt:
+        dhcp4: false
+        mtu: 1500
+        interfaces:
+          - vlan1010
+        addresses: [ 172.29.236.51/22 ]
+      br-storage:
+        dhcp4: false
+        mtu: 9000
+        interfaces:
+          - vlan1030
+        addresses: [ 172.29.244.51/22 ]
+      br-repl:
+        dhcp4: false
+        mtu: 9000
+        interfaces:
+          - vlan1040
+        addresses: [ 172.29.248.51/22 ]
+    vlans:
+      vlan1000:
+        id: 1000
+        link: bond0
+        dhcp4: false
+        mtu: 1500
+      vlan1010:
+        id: 1010
+        link: bond0
+        dhcp4: false
+        mtu: 1500
+      vlan1030:
+        id: 1030
+        link: bond0
+        dhcp4: false
+        mtu: 9000
+      vlan1040:
+        id: 1040
+        link: bond1
+        dhcp4: false
+        mtu: 9000
 ```
 
 Reboot each node so that the network configs take.
