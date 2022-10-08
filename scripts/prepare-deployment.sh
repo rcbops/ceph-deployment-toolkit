@@ -7,21 +7,24 @@ then
 fi
 source ./cephrc
 
-echo " #################################"
-echo " # INSTALLING GIT AND VIRTUALENV #"
-echo " #################################"
-
-apt install -y git virtualenv
-
-
 echo " ###################################"
 echo " # CREATING ceph_deploy VIRTUALENV #"
 echo " ###################################"
 
-apt install -y python
-wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py
-python /tmp/get-pip.py
-pip install virtualenv
+lsb_release -r |grep -q 18.04 2>/dev/null
+
+if [ $? -eq 0 ]; then
+    apt install -y python git
+    wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py
+    python /tmp/get-pip.py
+    pip install virtualenv
+else
+    apt install -y python3 git
+    wget https://bootstrap.pypa.io/pip/3.6/get-pip.py -O /tmp/get-pip.py
+    python3 /tmp/get-pip.py
+    pip install virtualenv
+fi
+
 virtualenv ceph_deploy
 source ceph_deploy/bin/activate
 
@@ -33,6 +36,7 @@ echo " ################################################"
 #add-apt-repository ppa:ansible/ansible
 #apt update
 #apt install ansible=$ANSIBLE_VERSION
+
 pip install --upgrade 'setuptools<45.0.0'
 pip install ansible==$ANSIBLE_VERSION
 pip install notario
