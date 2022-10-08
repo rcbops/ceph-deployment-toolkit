@@ -15,13 +15,13 @@ lsb_release -r |grep -q 18.04 2>/dev/null
 
 if [ $? -eq 0 ]; then
     apt install -y python git
-    wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /tmp/get-pip.py
-    python /tmp/get-pip.py
+    wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /opt/ceph-toolkit/get-pip.py
+    python /opt/ceph-toolkit/get-pip.py
     pip install virtualenv
 else
     apt install -y python3 git
-    wget https://bootstrap.pypa.io/pip/3.6/get-pip.py -O /tmp/get-pip.py
-    python3 /tmp/get-pip.py
+    wget https://bootstrap.pypa.io/pip/3.6/get-pip.py -O /opt/ceph-toolkit/get-pip.py
+    python3 /opt/ceph-toolkit/get-pip.py
     pip install virtualenv
 fi
 
