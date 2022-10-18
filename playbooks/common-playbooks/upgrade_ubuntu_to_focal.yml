@@ -33,7 +33,7 @@
 
       - name: Update apt defaults to retain package configs
         copy:
-          src: ../files/apt.conf.d/local
+          src: ../files/upgrade_ubuntu_to_focal/apt.conf.d/local
           dest: /etc/apt/apt.conf.d/local
 
       - name: Update ceph repo preferences
