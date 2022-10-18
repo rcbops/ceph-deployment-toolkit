@@ -31,6 +31,11 @@
           - /etc/update-motd.d/99-esm
           - /run/motd.dynamic
 
+      - name: Update apt defaults to retain package configs
+        copy:
+          src: ../files/apt.conf.d/local
+          dest: /etc/apt/apt.conf.d/local
+
       - name: Update ceph repo preferences
         copy:
           src: ../files/ceph.pref
@@ -60,7 +65,7 @@
       - name: Enable Ubuntu LTS upgrades
         replace:
           path: /etc/update-manager/release-upgrades
-          regexp: "^(Prompt=.+)$"
+          regexp: "^(Prompt=.*)$"
           replace: "Prompt=lts"
 
       - name: Copy upgrade script to target
