@@ -4,7 +4,7 @@
   name: Rolling Reboot
   serial: 1
   vars:
-    health_osd_check_retries: 40
+    health_osd_check_retries: 120
     health_osd_check_delay: 30
     mon_group_name: "mons"
     cluster: "ceph"

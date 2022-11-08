@@ -78,7 +78,7 @@
           msg:
           - 'A log of the upgrade can be found on the node at /var/log/release-upgrade_$( date +%F ).log'
 
-      - name: Run upgrade script with do-release-upgrade non-interactively.
+      - name: Run upgrade script (/var/tmp/run_upgrade.sh) with do-release-upgrade non-interactively.
         command: bash /var/tmp/run_upgrade.sh
 
       - name: Reboot node
