@@ -241,7 +241,7 @@ ceph_conf_overrides:
      "rbd_cache_target_dirty": 33554432
      "rbd_cache_writethrough_until_flush": "False"
 ## UNCOMMENT FOR RGW
-#   "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
+#   "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0":
 #     "rgw keystone api version": "3"
 #     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
 #     "rgw keystone admin user": "swift"
