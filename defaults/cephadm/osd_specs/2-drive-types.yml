@@ -1,0 +1,17 @@
+# this example can be used for slower data and faster journals
+service_type: osd
+service_id: osd_example    <------------- replace this with something descriptive (hdd_osds, ssd_osds, etc)
+placement:
+  host_pattern: '*'
+data_devices:
+  paths:
+    - /dev/sdc
+    - /dev/sdd
+    - /dev/sde
+    - /dev/sdf
+    - /dev/sdg
+    - /dev/sdh
+db_devices:
+  paths:
+    - /dev/sda
+    - /dev/sdb

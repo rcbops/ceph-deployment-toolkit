@@ -1,0 +1,20 @@
+# this example can be used for HDD data_devices, SSD db_devices, and NVMe wal (uncommon)
+service_type: osd
+service_id: osd_example    <------------- replace this with something descriptive (hdd_osds, ssd_osds, etc)
+placement:
+  host_pattern: '*'
+data_devices:
+  paths:
+    - /dev/sdc
+    - /dev/sdd
+    - /dev/sde
+    - /dev/sdf
+    - /dev/sdg
+    - /dev/sdh
+db_devices:
+  paths:
+    - /dev/sda
+    - /dev/sdb
+wal_devices:
+  paths:
+    - /dev/nvme0
