@@ -11,21 +11,22 @@ echo " ###################################"
 echo " # CREATING ceph_deploy VIRTUALENV #"
 echo " ###################################"
 
-lsb_release -r |grep -q 18.04 2>/dev/null
+OS_RELEASE=$(lsb_release -sr)
 
-if [ $? -eq 0 ]; then
+if [ ${OS_RELEASE} = "18.04" ] || [ ${CEPH_ANSIBLE_VERSION} = "stable-5.0" ]; then
     apt install -y python git
     wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O /opt/ceph-toolkit/get-pip.py
     python /opt/ceph-toolkit/get-pip.py
     pip install virtualenv
+    virtualenv ceph_deploy
 else
-    apt install -y python3 git
-    wget https://bootstrap.pypa.io/pip/3.6/get-pip.py -O /opt/ceph-toolkit/get-pip.py
+    apt install -y python3 python3-distutils git
+    wget https://bootstrap.pypa.io/get-pip.py -O /opt/ceph-toolkit/get-pip.py
     python3 /opt/ceph-toolkit/get-pip.py
     pip install virtualenv
+    virtualenv -p python3 ceph_deploy
 fi
 
-virtualenv ceph_deploy
 source ceph_deploy/bin/activate
 
 
@@ -33,16 +34,15 @@ echo " ################################################"
 echo " # DOWNLOADING ANSIBLE VERSION $ANSIBLE_VERSION #"
 echo " ################################################"
 
-#add-apt-repository ppa:ansible/ansible
-#apt update
-#apt install ansible=$ANSIBLE_VERSION
-
 pip install --upgrade 'setuptools<45.0.0'
 pip install ansible==$ANSIBLE_VERSION
 pip install notario
 pip install netaddr
 pip install six
 
+if [ ${OS_RELEASE} = "20.04" ]; then
+    ansible-galaxy collection install ansible.utils
+fi
 
 if [ ! -d ${CEPH_ANSIBLE_DIR} ]
 then
