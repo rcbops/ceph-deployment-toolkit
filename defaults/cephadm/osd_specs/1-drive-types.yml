@@ -1,0 +1,13 @@
+# this example can be used for simple collocated OSDs
+service_type: osd
+service_id: osd_example    <------------- replace this with something descriptive (hdd_osds, ssd_osds, etc)
+placement:
+  host_pattern: '*'
+data_devices:
+  paths:
+    - /dev/sdc
+    - /dev/sdd
+    - /dev/sde
+    - /dev/sdf
+    - /dev/sdg
+    - /dev/sdh
