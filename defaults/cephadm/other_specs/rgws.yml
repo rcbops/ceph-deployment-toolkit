@@ -1,0 +1,11 @@
+## Example spec
+## Full documentation available at https://docs.ceph.com/en/latest/cephadm/services/rgw/
+service_type: rgw
+service_id: radosgw
+placement:
+  label: rgws
+  count_per_host: 1
+networks:
+- {frontend-network}
+spec:
+  rgw_frontend_port: 8080
