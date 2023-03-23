@@ -48,6 +48,7 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
+cp cephrc_pacific cephrc
 bash scripts/prepare-deployment.sh
 ```
 
@@ -185,7 +186,7 @@ all:
         Charmander:
         Pikachu:
         Eevee:
-    grafana-server:   #required
+    monitoring:   #required
       hosts:
         Bulbasaur:
     rgws:  # only if customer is getting object storage with RGW
@@ -232,54 +233,94 @@ If these commands hang, double check that the switches are properly configured f
 
 ```
 cp /opt/ceph-toolkit/defaults/all.default.yml /opt/ceph-ansible/group_vars/all.yml
-cp /opt/ceph-toolkit/defaults/mons.default.yml /opt/ceph-ansible/group_vars/mons.yml
-cp /opt/ceph-toolkit/defaults/osds.default.yml /opt/ceph-ansible/group_vars/osds.yml
-cp /opt/ceph-toolkit/defaults/mgrs.default.yml /opt/ceph-ansible/group_vars/mgrs.yml
-cp /opt/ceph-toolkit/defaults/nfss.default.yml /opt/ceph-ansible/group_vars/nfss.yml
-cp /opt/ceph-toolkit/defaults/rgws.default.yml /opt/ceph-ansible/group_vars/rgws.yml
 ```
 
-### Fill in the info in all.yml, osds.yml and rgws.yml. Read the instructions in each file.
+### Fill in the info in all.yml. Read the instructions in the file.
 
 
 
-### Run site.yml to deploy Ceph
+### Run cephadm.yml to deploy Ceph
 
 ```
 . /opt/ceph-toolkit/ceph_deploy/bin/activate
 
 cd /opt/ceph-ansible
-ln -sf site.yml.sample site.yml
-ansible-playbook -i ceph_inventory.yml site.yml
+ln -sf infrastructure-playbooks/cephadm.yml cephadm.yml
+ansible-playbook -i ceph_inventory.yml cephadm.yml
 ```
 
-### Set tunables and enable the balancer
+### Confirm all nodes have been added and labeled, and mon/mgr/monitoring services are running
 
 ```
-ceph osd set-require-min-compat-client octopus
-ceph balancer mode upmap
-ceph osd crush tunables optimal
-ceph balancer on
+cephadm shell -m /opt/ceph-toolkit:/opt/ceph-toolkit /opt/cephadm-specs:/opt/cephadm-specs
+ceph -s
+ceph orch host ls
+ceph orch ls
 ```
+
+### Export the node and service specs
+
+```
+ceph orch host ls --format yaml |tee /opt/cephadm-specs/cluster-nodes.yml
+ceph orch ls --format yaml |tee /opt/cephadm-specs/services.yml
+```
+
+### Import default configs
+
+```
+ceph config assimilate-conf -i /opt/ceph-toolkit/defaults/cephadm/default_ceph.conf
+ceph config dump
+```
+
+### Enable logging to files
+
+```
+ceph config set global log_to_file true
+ceph config set global mon_cluster_log_to_file true
+ceph config set global log_to_stderr false
+ceph config set global mon_cluster_log_to_file false
+```
+
+### Create the osds
+
+```
+cp /opt/ceph-toolkit/defaults/cephadm/osd_specs/{example} /opt/cephadm-specs/osds.yml
+ (customize osd spec or multiple specs as required)
+ceph orch apply -i /opt/cephadm-specs/osds.yml
+ceph orch ls
+'''
+
+### Create rgws if necessary
+ 
+```
+cp /opt/ceph-toolkit/defaults/cephadm/other_specs/rgws.yml /opt/cephadm-specs/rgws.yml
+ (edit /opt/cephadm-specs/rgws.yml with correct network)
+ceph orch apply -i /opt/cephadm-specs/rgws.yml
+ceph config set client.rgw.radosgw rgw_keystone_api version 3
+ceph config set client.rgw.radosgw rgw_keystone_url "<INTERNAL KEYSTONE ENDPOINT>"
+ceph config set client.rgw.radosgw rgw_keystone_admin_user "swift"
+ceph config set client.rgw.radosgw rgw_keystone_admin_password "<PASSWORD FROM OPENSTACK>"
+ceph config set client.rgw.radosgw rgw_keystone_admin_tenant "service"
+ceph config set client.rgw.radosgw rgw_keystone_admin_domain "default"
+ceph config set client.rgw.radosgw rgw_keystone_accepted_roles "Member, _member_, admin"
+ceph config set client.rgw.radosgw rgw_keystone_token_cache_size "10000"
+ceph config set client.rgw.radosgw rgw_keystone_revocation interval "900"
+ceph config set client.rgw.radosgw rgw_s3_auth_use_keystone "true"
+ceph config set client.rgw.radosgw rgw_swift_account_in_url "true"
+ceph config set client.rgw.radosgw rgw_keystone_implicit_tenants "true"
+```
+( the above needs to be tested thoroughly )
 
 ### Enable the Ceph Dashboard
-
-Check that the dashboard is enabled
-```
-ceph mgr services
-```
-Navigate to the dashboard and log in with the username/password you recorded from before
-
 
 ### Set the performance scaling governor and disable cpu idle states
 
 ```
+exit
 cd /opt/ceph-toolkit
+source ceph_deploy/bin/activate
 ansible-playbook -i /opt/ceph-ansible/ceph_inventory.yml ./playbooks/common-playbooks/cpu_tuning.yml
 ```
-
-### If RadosGW (swift/S3) services are required, reference rados_gateway_install.md
-
 
 
 __Glossary__
