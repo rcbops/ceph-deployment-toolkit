@@ -1,0 +1,49 @@
+## cephadm node spec example
+## Full documentation at https://docs.ceph.com/en/latest/cephadm/host-management/#creating-many-hosts-at-once
+addr: <frontend_ip>
+hostname: <hostname>
+labels:
+- _admin
+- mons
+- mgrs
+- rgws
+- monitoring
+- osds
+- ceph
+status: ''
+---
+addr: <frontend_ip>
+hostname: <hostname>
+labels:
+- _admin
+- mons
+- mgrs
+- rgws
+- osds
+- ceph
+status: ''
+---
+addr: <frontend_ip>
+hostname: <hostname>
+labels:
+- _admin
+- mons
+- mgrs
+- rgws
+- osds
+- ceph
+status: ''
+---
+addr: <frontend_ip>
+hostname: <hostname>
+labels:
+- osds
+- ceph
+status: ''
+---
+addr: <frontend_ip>
+hostname: <hostname>
+labels:
+- osds
+- ceph
+status: ''
