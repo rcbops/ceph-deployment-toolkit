@@ -15,7 +15,7 @@ ceph_conf_overrides:
     "rgw cache lru size": "250000"
     "rgw thread pool size": "8192"
     "rgw num rados handles": "8192"
-  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}":
+  "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0":
     "rgw keystone api version": "3"
     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"
     "rgw keystone admin user": "swift"
