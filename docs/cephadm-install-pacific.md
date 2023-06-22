@@ -285,16 +285,18 @@ ceph config set global mon_cluster_log_to_file false
 
 ```
 cp /opt/ceph-toolkit/defaults/cephadm/osd_specs/{example} /opt/cephadm-specs/osds.yml
- (customize osd spec or multiple specs as required)
+# customize osd spec or multiple specs as required
+
 ceph orch apply -i /opt/cephadm-specs/osds.yml
 ceph orch ls
-'''
+```
 
 ### Create rgws if necessary
  
 ```
 cp /opt/ceph-toolkit/defaults/cephadm/other_specs/rgws.yml /opt/cephadm-specs/rgws.yml
- (edit /opt/cephadm-specs/rgws.yml with correct network)
+# edit /opt/cephadm-specs/rgws.yml with correct network
+ 
 ceph orch apply -i /opt/cephadm-specs/rgws.yml
 ceph config set client.rgw.radosgw rgw_keystone_api version 3
 ceph config set client.rgw.radosgw rgw_keystone_url "<INTERNAL KEYSTONE ENDPOINT>"
@@ -309,6 +311,7 @@ ceph config set client.rgw.radosgw rgw_s3_auth_use_keystone "true"
 ceph config set client.rgw.radosgw rgw_swift_account_in_url "true"
 ceph config set client.rgw.radosgw rgw_keystone_implicit_tenants "true"
 ```
+
 ( the above needs to be tested thoroughly )
 
 ### Enable the Ceph Dashboard
@@ -317,6 +320,7 @@ ceph config set client.rgw.radosgw rgw_keystone_implicit_tenants "true"
 
 ```
 exit
+
 cd /opt/ceph-toolkit
 source ceph_deploy/bin/activate
 ansible-playbook -i /opt/ceph-ansible/ceph_inventory.yml ./playbooks/common-playbooks/cpu_tuning.yml
