@@ -9,18 +9,20 @@
 ###############
 # CRUSH RULES #
 ###############
-#crush_rule_config: false
+#crush_rule_config: true
 
 #crush_rule_hdd:
-#  name: HDD
-#  root: HDD
+#  name: replicated_hdd
+#  root: default
 #  type: host
-#  default: false
+#  class: hdd
+#  default: true
 
 #crush_rule_ssd:
-#  name: SSD
-#  root: SSD
+#  name: replicated_ssd
+#  root: default
 #  type: host
+#  class: ssd
 #  default: false
 
 #crush_rules:
