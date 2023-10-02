@@ -77,16 +77,14 @@ osd_objectstore: bluestore
 
 
 # Required for CRUSH hierarchy { osd_crush_location: { root: default, rack: rack1, host: ceph01 } }
-create_crush_tree: true
+create_crush_tree: True
 
 # Default autoscale mode to True
 pg_autoscale_mode: True
 
 
-
 # Openstack Pools
-
-openstack_config: true
+openstack_config: True
 openstack_glance_pool:
   name: "images"
   rule_name: "replicated_rule"
@@ -171,7 +169,8 @@ grafana_admin_password: <DIFFERENT_PASSWORD>
 
 osd_pool_default_size: 3
 osd_pool_default_min_size: 2
-
+osd_pool_default_pg_num: 32
+osd_pool_default_pgp_num: 32
 
 ceph_conf_overrides: 
    "global":
@@ -206,8 +205,8 @@ ceph_conf_overrides:
      "debug_monc": "0/0"
      "debug_mon": "0/0"
      "max_open_files": "26234859"
-     "osd_pool_default_pg_num": "32"
-     "osd_pool_default_pgp_num": "32"
+     "osd_pool_default_pg_num": "{{ osd_pool_default_pg_num }}"
+     "osd_pool_default_pgp_num": "{{ osd_pool_default_pgp_num }}"
      "osd_deep_scrub_interval": "1209600"
      "mon_osd_down_out_interval": "900"
      "mon_pg_warn_max_object_skew": "0"
