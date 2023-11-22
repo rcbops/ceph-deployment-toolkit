@@ -298,7 +298,7 @@ cp /opt/ceph-toolkit/defaults/cephadm/other_specs/rgws.yml /opt/cephadm-specs/rg
 # edit /opt/cephadm-specs/rgws.yml with correct network
  
 ceph orch apply -i /opt/cephadm-specs/rgws.yml
-ceph config set client.rgw.radosgw rgw_keystone_api version 3
+ceph config set client.rgw.radosgw rgw_keystone_api_version 3
 ceph config set client.rgw.radosgw rgw_keystone_url "<INTERNAL KEYSTONE ENDPOINT>"
 ceph config set client.rgw.radosgw rgw_keystone_admin_user "swift"
 ceph config set client.rgw.radosgw rgw_keystone_admin_password "<PASSWORD FROM OPENSTACK>"
@@ -306,7 +306,6 @@ ceph config set client.rgw.radosgw rgw_keystone_admin_tenant "service"
 ceph config set client.rgw.radosgw rgw_keystone_admin_domain "default"
 ceph config set client.rgw.radosgw rgw_keystone_accepted_roles "Member, _member_, admin"
 ceph config set client.rgw.radosgw rgw_keystone_token_cache_size "10000"
-ceph config set client.rgw.radosgw rgw_keystone_revocation interval "900"
 ceph config set client.rgw.radosgw rgw_s3_auth_use_keystone "true"
 ceph config set client.rgw.radosgw rgw_swift_account_in_url "true"
 ceph config set client.rgw.radosgw rgw_keystone_implicit_tenants "true"
