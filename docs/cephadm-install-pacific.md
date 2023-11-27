@@ -325,8 +325,21 @@ source ceph_deploy/bin/activate
 ansible-playbook -i /opt/ceph-ansible/ceph_inventory.yml ./playbooks/common-playbooks/cpu_tuning.yml
 ```
 
+### Install OpenStack integration
 
-__Glossary__
+The ceph pool creation for openstack functionality moved to openstack-ops per
+
+```
+cd /opt/openstack-ops/playbooks
+openstack-ansible -i <ceph inventory file> configure-ceph.yml -e ceph_stable_release=pacific
+```
+
+Ensure that `ceph_stable_release` is either set per `/etc/openstack_deploy` or command line as ceph client will be installed onto the ceph monitor
+regardless if the ceph deployment is containerized or not.
+OSA at this point does not support cephadm and as workaround we install a ceph client onto the monitor nodes.
+
+
+### Glossary
 
 Colocated - Occurs when every single drive in a ceph cluster is a SSD. The wal and db partitions will share the SSD with the data partition
 
