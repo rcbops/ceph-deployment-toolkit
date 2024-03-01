@@ -327,7 +327,7 @@ ansible-playbook -i /opt/ceph-ansible/ceph_inventory.yml ./playbooks/common-play
 
 ### Install OpenStack integration
 
-The ceph pool creation for openstack functionality moved to openstack-ops per
+The ceph pool creation for openstack functionality moved to the openstack-ops module and is typically executed from the deployment host, controller1 for example: 
 
 ```
 cd /opt/openstack-ops/playbooks
