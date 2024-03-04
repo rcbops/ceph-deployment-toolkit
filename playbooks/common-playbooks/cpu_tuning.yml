@@ -1,6 +1,7 @@
 ---
-- hosts: nodes
-  become: true
+- hosts: all
+  become: "{{ ansible_become | default(false) }}"
+  gather_facts: "{{ gather_facts | default(true) }}"
   vars:
       governor: "{{ cpu_governor | default('performance') }}"
       disable_cpuidle_states: [2,3,4]
