@@ -20,7 +20,7 @@ if [ ${OS_RELEASE} = "18.04" ] || [ ${CEPH_ANSIBLE_VERSION} = "stable-5.0" ]; th
     pip install virtualenv
     virtualenv ceph_deploy
 else
-    apt install -y python3 python3-distutils git
+    apt install -y python3 python-is-python3 python3-distutils git
     wget https://bootstrap.pypa.io/get-pip.py -O /opt/ceph-toolkit/get-pip.py
     python3 /opt/ceph-toolkit/get-pip.py
     pip install virtualenv
