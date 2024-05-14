@@ -46,6 +46,7 @@ pip install six
 if [ ${OS_RELEASE} = "20.04" -o ${OS_RELEASE} = "22.04" ]; then
     ansible-galaxy collection install ansible.posix
     ansible-galaxy collection install ansible.utils
+    ansible-galaxy collection install community.general
 fi
 
 if [ ! -d ${CEPH_ANSIBLE_DIR} ]
