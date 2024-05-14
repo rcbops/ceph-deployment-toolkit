@@ -23,24 +23,28 @@ else
     apt install -y python3 python-is-python3 python3-distutils git
     wget https://bootstrap.pypa.io/get-pip.py -O /opt/ceph-toolkit/get-pip.py
     python3 /opt/ceph-toolkit/get-pip.py
-    pip install virtualenv
-    virtualenv -p python3 ceph_deploy
+    python3 -m venv ceph_deploy
 fi
 
 source ceph_deploy/bin/activate
-
 
 echo " ################################################"
 echo " # DOWNLOADING ANSIBLE VERSION $ANSIBLE_VERSION #"
 echo " ################################################"
 
-pip install --upgrade 'setuptools<45.0.0'
-pip install ansible==$ANSIBLE_VERSION
+if [ ${OS_RELEASE} = "18.04" -o ${OS_RELEASE} = "20.04" ]; then
+  pip install --upgrade 'setuptools<45.0.0'
+  pip install ansible==$ANSIBLE_VERSION
+elif [ ${OS_RELEASE} = "22.04" ]; then
+  pip install ansible-core==$ANSIBLE_VERSION
+fi
+
 pip install notario
 pip install netaddr
 pip install six
 
-if [ ${OS_RELEASE} = "20.04" ]; then
+if [ ${OS_RELEASE} = "20.04" -o ${OS_RELEASE} = "22.04" ]; then
+    ansible-galaxy collection install ansible.posix
     ansible-galaxy collection install ansible.utils
 fi
 
