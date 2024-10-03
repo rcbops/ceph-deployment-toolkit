@@ -1,6 +1,3 @@
-
-# DRAFT, IN EDIT
-
 # Ceph Install for Ubuntu 20.04+
 
 It is assumed that all nodes have Ubuntu (20.04+) installed, and servers are accessible via ssh from the deployment node.
