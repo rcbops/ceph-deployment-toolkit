@@ -1,6 +1,6 @@
-# Ceph Install for Ubuntu 20.04+
+# Ceph Install for Ubuntu 20.04 and later
 
-It is assumed that all nodes have Ubuntu (20.04+) installed, and servers are accessible via ssh from the deployment node.
+It is assumed that all nodes have Ubuntu installed, and servers are accessible via ssh from the deployment node.
 
 Unless specified otherwise, all commands are run from the deployment node. Usually, the deployment node is the first ceph node.
 
@@ -45,7 +45,7 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
-cp cephrc_pacific cephrc
+cp cephrc_quincy cephrc
 bash scripts/prepare-deployment.sh
 ```
 
@@ -328,7 +328,7 @@ The ceph pool creation for openstack functionality moved to the openstack-ops mo
 
 ```
 cd /opt/openstack-ops/playbooks
-openstack-ansible -i <ceph inventory file> configure-ceph.yml -e ceph_stable_release=pacific
+openstack-ansible -i <ceph inventory file> configure-ceph.yml -e ceph_stable_release=quincy
 ```
 
 Ensure that `ceph_stable_release` is either set per `/etc/openstack_deploy` or command line as ceph client will be installed onto the ceph monitor

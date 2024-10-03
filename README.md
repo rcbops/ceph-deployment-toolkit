@@ -1,8 +1,8 @@
 # ceph-deployment-toolkit
 Playbooks and Scripts to make deploying Ceph easy and repeatable
 
-## Qunicy (testing)
-* ceph-ansible v7.0.0alpha1-398-g97d4372e6 (stable-7.0 branch)
+## Qunicy
+* ceph-ansible v7.0.0alpha1-408-g21026ac75 (stable-7.0 branch)
 * Ansible-core 2.15
 
 ## Pacific
