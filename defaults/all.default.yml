@@ -45,7 +45,6 @@ mgr_group_name: mgrs
 
 
 # Pull ceph from upstream
-
 ceph_origin: repository
 ceph_repository: community
 ceph_mirror: https://download.ceph.com
@@ -69,7 +68,6 @@ cluster_network: BACKEND-NETWORK-CIDR
 osd_objectstore: bluestore
 
 
-
 # CephFS backend (only uncomment if setting up CephFS)
 
 # Set this to true to enable File access via NFS.  Requires an MDS role.
@@ -84,6 +82,8 @@ create_crush_tree: True
 # Default autoscale mode to True
 pg_autoscale_mode: True
 
+#Other settings
+journal_size: 20480
 
 # Openstack Pools
 openstack_config: True
@@ -241,7 +241,7 @@ ceph_conf_overrides:
      "rbd_cache_size": 67108864
      "rbd_cache_target_dirty": 33554432
      "rbd_cache_writethrough_until_flush": "False"
-## UNCOMMENT FOR RGW
+## UNCOMMENT FOR RGW Keystone Integration
 #   "client.rgw.{{ hostvars[inventory_hostname]['ansible_facts']['hostname'] }}.rgw0":
 #     "rgw keystone api version": "3"
 #     "rgw keystone url": "<INTERNAL KEYSTONE ENDPOINT>"

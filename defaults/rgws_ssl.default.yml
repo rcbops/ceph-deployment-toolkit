@@ -2,12 +2,12 @@
 
 # This is a prepopulated rgws.yml file
 
-# Fill in the Management Netowrk, Internal VIP endpoint for keystone, and the swift password from openstack
+# Fill in the internal VIP endpoint for keystone, and the swift password from openstack
 
-radosgw_address_block: <MGMT_NETWORK_CIDR>
+radosgw_address_block: "{{ public_network }}"
 radosgw_civetweb_bind_ip: "{{ hostvars[inventory_hostname]['ansible_all_ipv4_addresses'] | ipaddr(radosgw_address_block) | first }}"
 radosgw_civetweb_port: 8080+443s
-radosgw_civetweb_num_threads: 512
+radosgw_civetweb_num_threads: 1024
 radosgw_civetweb_options: "num_threads={{ radosgw_civetweb_num_threads }} ssl_certificate=/etc/ceph/ssl_combined.pem"
 
 ceph_conf_overrides:
