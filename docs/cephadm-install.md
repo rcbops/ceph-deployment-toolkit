@@ -46,6 +46,9 @@ git clone <url of the repo> /opt/ceph-toolkit
 ```
 cd /opt/ceph-toolkit
 cp cephrc_quincy cephrc
+
+# Edit cephrc and select the correct ansible version
+
 bash scripts/prepare-deployment.sh
 ```
 

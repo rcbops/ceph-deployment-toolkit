@@ -32,18 +32,20 @@ echo " ################################################"
 echo " # DOWNLOADING ANSIBLE VERSION $ANSIBLE_VERSION #"
 echo " ################################################"
 
-if [ ${OS_RELEASE} = "18.04" -o ${OS_RELEASE} = "20.04" ]; then
+if [ ${OS_RELEASE} = "18.04" ]; then
   pip install --upgrade 'setuptools<45.0.0'
   pip install ansible==$ANSIBLE_VERSION
   pip install Jinja2==2.11.3
   pip install MarkupSafe==1.1.1
+elif [ ${OS_RELEASE} = "20.04" ]; then
+  pip install ansible-core==$ANSIBLE_VERSION
 elif [ ${OS_RELEASE} = "22.04" ]; then
   pip install ansible-core==$ANSIBLE_VERSION
 fi
 
-pip install notario
-pip install netaddr
-pip install six
+pip install 'notario<=0.0.16'
+pip install 'netaddr<=1.3.0'
+pip install 'six<=1.16.0'
 
 
 if [ ${OS_RELEASE} = "20.04" -o ${OS_RELEASE} = "22.04" ]; then
