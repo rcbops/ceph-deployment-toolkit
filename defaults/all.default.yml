@@ -50,7 +50,7 @@ ceph_origin: repository
 ceph_repository: community
 ceph_mirror: https://download.ceph.com
 ceph_stable_key: https://download.ceph.com/keys/release.asc
-ceph_stable_release: pacific
+ceph_stable_release: quincy
 ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
 
 # Pull NFS-Ganesha 2.7 if using CephfS (Uncomment only if using CephFS)
