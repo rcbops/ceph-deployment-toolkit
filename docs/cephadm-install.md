@@ -11,11 +11,11 @@ Unless specified otherwise, all commands are run from the deployment node. Usual
 Example
 
 ```
-172.20.41.37 Bulbasaur
-172.20.41.27 Squirtle
-172.20.41.29 Charmander
-172.20.41.41 Pikachu
-172.20.41.45 Eevee
+172.20.41.10 Bulbasaur
+172.20.41.11 Squirtle
+172.20.41.12 Charmander
+172.20.41.13 Pikachu
+172.20.41.14 Eevee
 ```
 
 ### Create ssh key and push the public key to the other ceph nodes
@@ -168,6 +168,17 @@ Your inventory file should look like this
 cat << EOT > ceph_inventory.yml
 ---
 all:
+  hosts:
+    Bulbasaur:
+      ansible_host: 172.20.41.10
+    Squirtle:
+      ansible_host: 172.20.41.11
+    Charmander:
+      ansible_host: 172.20.41.12
+    Pikachu:
+      ansible_host: 172.20.41.13
+    Eevee:
+      ansible_host: 172.20.41.14
   children:
     mons:   # required
       hosts:
