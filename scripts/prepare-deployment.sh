@@ -44,7 +44,7 @@ case "$CEPH_ANSIBLE_VERSION" in
 
     stable-6.0)
       ANSIBLE_MODULE="ansible==2.10.7"
-      INSTALL_ANSIBLE_COLLECTIONS=false
+      INSTALL_ANSIBLE_COLLECTIONS=true
       CEPHADM=true
     ;;
 
