@@ -91,3 +91,8 @@ coverage.xml
 *.iml
 .DS_Store
 .vscode
+
+# Ceph Toolkit
+ceph_deploy/**/*
+get-pip.py
+cephrc

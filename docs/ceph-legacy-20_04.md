@@ -48,7 +48,7 @@ git clone <url of the repo> /opt/ceph-toolkit
 
 ```
 cd /opt/ceph-toolkit
-bash scripts/prepare-deployment.sh
+bash scripts/prepare-deployment.sh <ceph-ansible branch>
 ```
 
 

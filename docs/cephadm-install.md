@@ -49,7 +49,7 @@ cp cephrc_quincy cephrc
 
 # Edit cephrc and select the correct ansible version
 
-bash scripts/prepare-deployment.sh
+bash scripts/prepare-deployment.sh <ceph-ansible-branch>
 ```
 
 

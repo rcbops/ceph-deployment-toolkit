@@ -1,0 +1,15 @@
+diff --git a/roles/ceph-validate/tasks/check_system.yml b/roles/ceph-validate/tasks/check_system.yml
+index d4f927d98..296441ea9 100644
+--- a/roles/ceph-validate/tasks/check_system.yml
++++ b/roles/ceph-validate/tasks/check_system.yml
+@@ -6,8 +6,8 @@
+
+ - name: fail on unsupported ansible version
+   fail:
+-    msg: "Ansible version must be 2.9!"
+-  when: ansible_version.minor|int != 9
++    msg: "Ansible version must be 2.10!"
++  when: ansible_version.minor|int != 10
+
+ - name: fail on unsupported system
+   fail:
