@@ -9,3 +9,9 @@ networks:
 - {frontend-network}
 spec:
   rgw_frontend_port: 8080
+  #rgw_frontend_ssl_certificate: |
+  #  -----BEGIN PRIVATE KEY-----
+  #  -----END PRIVATE KEY-----
+  #  -----BEGIN CERTIFICATE-----
+  #  -----END CERTIFICATE-----
+  #ssl: true
