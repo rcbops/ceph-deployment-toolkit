@@ -11,11 +11,11 @@ Unless specified otherwise, all commands are run from the deployment node. Usual
 Example
 
 ```
-172.20.41.10 Bulbasaur
-172.20.41.11 Squirtle
-172.20.41.12 Charmander
-172.20.41.13 Pikachu
-172.20.41.14 Eevee
+172.20.41.10 host1
+172.20.41.11 host2
+172.20.41.12 host3
+172.20.41.13 host4
+172.20.41.14 host5
 ```
 
 ### Create ssh key and push the public key to the other ceph nodes
@@ -166,52 +166,52 @@ cat << EOT > ceph_inventory.yml
 ---
 all:
   hosts:
-    Bulbasaur:
+    host1:
       ansible_host: 172.20.41.10
-    Squirtle:
+    host2:
       ansible_host: 172.20.41.11
-    Charmander:
+    host3:
       ansible_host: 172.20.41.12
-    Pikachu:
+    host4:
       ansible_host: 172.20.41.13
-    Eevee:
+    host5:
       ansible_host: 172.20.41.14
   children:
     mons:   # required
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
+        host1:
+        host2:
+        host3:
     mgrs:   # required
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
+        host1:
+        host2:
+        host3:
     osds:   # required
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
-        Pikachu:
-        Eevee:
+        host1:
+        host2:
+        host3:
+        host4:
+        host5:
     monitoring:   #required
       hosts:
-        Bulbasaur:
+        host1:
     rgws:  # only if customer is getting object storage with RGW
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
+        host1:
+        host2:
+        host3:
     mdss:  # only if customer is getting CephFS + Manila
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
+        host1:
+        host2:
+        host3:
     nfss:  # only if customer is getting CephFS + Manila
       hosts:
-        Bulbasaur:
-        Squirtle:
-        Charmander:
+        host1:
+        host2:
+        host3:
 EOT
 ```
 
