@@ -286,7 +286,7 @@ ceph config dump
 ceph config set global log_to_file true
 ceph config set global mon_cluster_log_to_file true
 ceph config set global log_to_stderr false
-ceph config set global mon_cluster_log_to_file false
+ceph config set global mon_cluster_log_to_stderr false
 ```
 
 ### Create the osds
