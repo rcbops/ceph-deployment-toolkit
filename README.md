@@ -1,6 +1,13 @@
 # ceph-deployment-toolkit
 Playbooks and Scripts to make deploying Ceph easy and repeatable
 
+## Reef
+
+Supported OS: Ubuntu 22.04, 24.04
+
+* ceph-ansible v8.0.0
+* ansible-core 2.15.13
+
 ## Qunicy
 
 Supported OS: Ubuntu 20.04, 22.04

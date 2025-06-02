@@ -2,11 +2,12 @@
 
 if [ -z "$1" ]; then
   echo "The ceph-ansible branch version must be defined:"
-  echo "$0 stable-7.0"
+  echo "$0 stable-8.0"
   echo ""
-  echo "Octopus stable-5.0"
+  echo "Reef stable-8.0 *"
+  echo "Quincy	stable-7.0"
   echo "Pacific stable-6.0"
-  echo "Quincy	stable-7.0 *"
+  echo "Octopus stable-5.0"
 
   exit 1
 fi
@@ -56,6 +57,20 @@ case "$CEPH_ANSIBLE_VERSION" in
         22.04)
           ANSIBLE_MODULE="ansible-core==2.15.13"
 	;;
+      esac
+
+      INSTALL_ANSIBLE_COLLECTIONS=true
+      CEPHADM=true
+    ;;
+
+    stable-8.0)
+      case "$OS_RELEASE" in
+        22.04)
+          ANSIBLE_MODULE="ansible-core==2.13.13"
+        ;;
+        24.04)
+          ANSIBLE_MODULE="ansible-core==2.15.13"
+        ;;
       esac
 
       INSTALL_ANSIBLE_COLLECTIONS=true
