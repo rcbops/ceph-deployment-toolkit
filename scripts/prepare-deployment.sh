@@ -54,10 +54,10 @@ case "$CEPH_ANSIBLE_VERSION" in
       case "$OS_RELEASE" in
         20.04)
           ANSIBLE_MODULE="ansible-core==2.13.13"
-	;;
+	    ;;
         22.04)
           ANSIBLE_MODULE="ansible-core==2.15.13"
-	;;
+	    ;;
       esac
 
       INSTALL_ANSIBLE_COLLECTIONS=true
@@ -82,6 +82,7 @@ case "$CEPH_ANSIBLE_VERSION" in
       case "$OS_RELEASE" in
         22.04)
           ANSIBLE_MODULE="ansible-core==2.16.18"
+        ;;
         24.04)
           ANSIBLE_MODULE="ansible-core==2.16.18"
         ;;
