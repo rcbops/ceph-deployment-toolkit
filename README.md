@@ -1,12 +1,21 @@
 # ceph-deployment-toolkit
-Playbooks and Scripts to make deploying Ceph easy and repeatable
+Playbooks and Scripts to make deploying Ceph repeatable
+
+## Squid
+
+Supported OS: Ubuntu 22.04, 24.04
+
+* cephadm 19.x
+* ansible-core 2.16.18
 
 ## Reef
 
 Supported OS: Ubuntu 22.04, 24.04
 
-* ceph-ansible v8.0.0
+* cephadm 18.x
 * ansible-core 2.15.13
+
+# EOL Versions
 
 ## Qunicy
 
