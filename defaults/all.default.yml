@@ -4,7 +4,7 @@
 # Fill in the needed info to set up your cluster. 
 # If you have any questions, contact RPC-STORAGE
 
-# Enable the Ubuntu 18.04 default time synchronization
+# Enable the Ubuntu default time synchronization
 # service.
 ntp_service_enabled: true
 ntp_daemon_type: chronyd
@@ -27,6 +27,7 @@ ceph_release_num:
   pacific: 16
   quincy: 17
   reef: 18
+  squid: 19
   dev: 99
 
 
@@ -49,7 +50,7 @@ ceph_origin: repository
 ceph_repository: community
 ceph_mirror: https://download.ceph.com
 ceph_stable_key: https://download.ceph.com/keys/release.asc
-ceph_stable_release: quincy
+ceph_stable_release: squid
 ceph_stable_repo: "{{ ceph_mirror }}/debian-{{ ceph_stable_release }}"
 
 # Pull NFS-Ganesha 2.7 if using CephfS (Uncomment only if using CephFS)
